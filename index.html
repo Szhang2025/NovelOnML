@@ -1,0 +1,1947 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>机器学习小说教程 · 老陈的照相馆</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Noto+Sans+SC:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #1c130f;
+  --paper: #efe2c3;
+  --paper-deep: #e2cf9f;
+  --paper-line: #cbb283;
+  --safelight: #c23a2b;
+  --safelight-dim: #7d2a20;
+  --brass: #ab8548;
+  --muted: #7a6a4e;
+  --bg: #241a13;
+  --card-bg: #2e2119;
+  --shadow: rgba(0,0,0,0.45);
+  --font-display: 'Noto Serif SC', serif;
+  --font-body: 'Noto Serif SC', serif;
+  --font-ui: 'Noto Sans SC', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+html[data-theme="light"] {
+  --bg: #ece0c2;
+  --card-bg: #f7efd9;
+  --ink: #241a12;
+  --muted: #7d6c4c;
+  --shadow: rgba(90, 70, 40, 0.18);
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  transition: background 0.5s ease, color 0.5s ease;
+  min-height: 100vh;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse at 20% 0%, rgba(193,58,43,0.10), transparent 55%),
+    radial-gradient(ellipse at 80% 100%, rgba(171,133,72,0.08), transparent 60%);
+  transition: opacity 0.5s ease;
+}
+
+html[data-theme="light"] body::before { opacity: 0.5; }
+
+/* ---------- Top bar ---------- */
+.topbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 22px;
+  background: linear-gradient(to bottom, var(--bg) 70%, transparent);
+  pointer-events: none;
+}
+.topbar * { pointer-events: auto; }
+
+.brandmark {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--card-bg);
+  border: 1px solid var(--paper-line);
+  border-radius: 999px;
+  padding: 6px 14px 6px 8px;
+  cursor: pointer;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  color: var(--ink);
+  box-shadow: 0 4px 14px var(--shadow);
+}
+.theme-toggle .bulb {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--safelight);
+  box-shadow: 0 0 8px 2px var(--safelight);
+}
+
+/* ---------- Hero ---------- */
+.hero {
+  position: relative;
+  z-index: 1;
+  padding: 140px 24px 100px;
+  max-width: 880px;
+  margin: 0 auto;
+  text-align: center;
+}
+.hero .eyebrow {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--safelight);
+  margin-bottom: 22px;
+}
+.hero h1 {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(38px, 7vw, 74px);
+  line-height: 1.15;
+  margin: 0 0 20px;
+  color: var(--ink);
+}
+.hero .sub {
+  font-family: var(--font-body);
+  font-size: clamp(16px, 2.2vw, 20px);
+  color: var(--muted);
+  line-height: 1.9;
+  max-width: 640px;
+  margin: 0 auto 36px;
+}
+.hero .reel {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--muted);
+  border-top: 1px solid var(--paper-line);
+  border-bottom: 1px solid var(--paper-line);
+  padding: 10px 0;
+}
+.hero .reel span { opacity: 0.8; }
+.hero .reel .dot { color: var(--safelight); }
+
+/* ---------- Layout: filmstrip + content ---------- */
+.layout {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-start;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 24px 120px;
+  gap: 36px;
+}
+
+.filmstrip {
+  position: sticky;
+  top: 90px;
+  flex: 0 0 180px;
+  background: var(--card-bg);
+  border: 1px solid var(--paper-line);
+  border-radius: 4px;
+  padding: 10px 0;
+  box-shadow: 0 10px 30px var(--shadow);
+}
+.filmstrip::before, .filmstrip::after {
+  content: "";
+  display: block;
+  height: 10px;
+  background-image: radial-gradient(circle, var(--bg) 2.5px, transparent 2.6px);
+  background-size: 16px 10px;
+  background-position: center;
+  opacity: 0.5;
+}
+
+.frame-btn {
+  width: 100%;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 10px 16px;
+  background: none;
+  border: none;
+  border-left: 3px solid transparent;
+  text-align: left;
+  cursor: pointer;
+  font-family: var(--font-ui);
+  color: var(--muted);
+  transition: all 0.2s ease;
+}
+.frame-btn:hover { color: var(--ink); background: rgba(193,58,43,0.06); }
+.frame-btn.active {
+  border-left-color: var(--safelight);
+  color: var(--ink);
+  background: rgba(193,58,43,0.1);
+}
+.frame-num {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--safelight);
+  flex: 0 0 auto;
+}
+.frame-label {
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+
+.content { flex: 1 1 auto; min-width: 0; }
+
+/* ---------- Chapter "print" cards ---------- */
+.frame-section { padding-top: 26px; }
+.frame-section:first-child { padding-top: 0; }
+
+.print {
+  background: var(--card-bg);
+  border: 1px solid var(--paper-line);
+  border-radius: 6px;
+  padding: 40px clamp(20px, 4vw, 56px) 50px;
+  box-shadow: 0 18px 40px var(--shadow);
+  opacity: 0;
+  transform: translateY(18px) scale(0.99);
+  filter: blur(6px) sepia(0.3) saturate(0.7);
+  transition: opacity 1.1s ease, transform 1.1s ease, filter 1.3s ease;
+}
+.print.developed {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  filter: blur(0) sepia(0) saturate(1);
+}
+
+.print-header {
+  border-bottom: 1px solid var(--paper-line);
+  padding-bottom: 18px;
+  margin-bottom: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.exposure-num {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  color: var(--safelight);
+}
+.print-header h2 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(22px, 3vw, 30px);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.print-body {
+  font-size: 16.5px;
+  line-height: 2.05;
+}
+.print-body p { margin: 0 0 22px; }
+.print-body h3 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 19px;
+  margin: 40px 0 18px;
+  color: var(--ink);
+  position: relative;
+  padding-left: 16px;
+}
+.print-body h3::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 4px; bottom: 4px;
+  width: 3px;
+  background: var(--safelight);
+  border-radius: 2px;
+}
+.print-body hr {
+  border: none;
+  border-top: 1px dashed var(--paper-line);
+  margin: 36px 0;
+}
+.print-body strong { color: var(--safelight-dim); }
+html[data-theme="dark"] .print-body strong,
+:root .print-body strong { color: var(--safelight); }
+.print-body blockquote {
+  margin: 24px 0;
+  padding: 14px 22px;
+  border-left: 3px solid var(--brass);
+  background: rgba(171,133,72,0.08);
+  font-style: normal;
+  color: var(--muted);
+}
+.print-body ol, .print-body ul { padding-left: 22px; margin: 0 0 22px; }
+.print-body li { margin-bottom: 8px; }
+.print-body code {
+  font-family: var(--font-mono);
+  font-size: 0.86em;
+  background: rgba(171,133,72,0.14);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+/* console / code block */
+.console {
+  margin: 22px 0 28px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #120d0a;
+  border: 1px solid var(--paper-line);
+  box-shadow: inset 0 0 40px rgba(193,58,43,0.05);
+}
+.console-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: #1a130f;
+  border-bottom: 1px solid rgba(171,133,72,0.2);
+}
+.console-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--paper-line);
+  opacity: 0.5;
+}
+.console-label {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+}
+.console pre {
+  margin: 0;
+  padding: 16px 18px;
+  overflow-x: auto;
+}
+.console code {
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: #e9dcc0;
+  background: none;
+  padding: 0;
+  white-space: pre;
+}
+
+/* cheat-sheet card tables */
+.card-wrap {
+  position: relative;
+  margin: 30px 0 36px;
+  border: 1px solid var(--brass);
+  border-radius: 4px;
+  background: rgba(171,133,72,0.06);
+  padding-top: 22px;
+}
+.card-tab {
+  position: absolute;
+  top: -13px; left: 18px;
+  background: var(--brass);
+  color: #17110b;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  padding: 3px 12px;
+  border-radius: 3px;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-ui);
+  font-size: 14px;
+}
+table th, table td {
+  text-align: left;
+  padding: 10px 18px;
+  border-bottom: 1px solid rgba(171,133,72,0.25);
+  line-height: 1.6;
+}
+table th {
+  font-weight: 600;
+  color: var(--safelight);
+  font-size: 12.5px;
+  letter-spacing: 0.03em;
+}
+table tr:last-child td { border-bottom: none; }
+
+/* footer */
+.colophon {
+  position: relative;
+  z-index: 1;
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 40px 24px 120px;
+  text-align: center;
+  font-family: var(--font-ui);
+  font-size: 12.5px;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+}
+
+/* mobile */
+@media (max-width: 860px) {
+  .layout { flex-direction: column; padding: 0 16px 90px; }
+  .filmstrip {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    width: 100%;
+    display: flex;
+    overflow-x: auto;
+    border-radius: 0;
+    padding: 8px 6px;
+  }
+  .filmstrip::before, .filmstrip::after { display: none; }
+  .frame-btn {
+    flex: 0 0 auto;
+    border-left: none;
+    border-bottom: 3px solid transparent;
+    white-space: nowrap;
+  }
+  .frame-btn.active { border-left: none; border-bottom-color: var(--safelight); }
+  .frame-label { display: none; }
+  .hero { padding: 100px 18px 60px; }
+  .print { padding: 28px 18px 36px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .print { transition: opacity 0.2s linear; filter: none; transform: none; opacity: 1; }
+}
+
+:focus-visible {
+  outline: 2px solid var(--safelight);
+  outline-offset: 2px;
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="brandmark">机器学习小说教程</span>
+  <button class="theme-toggle" id="themeToggle" type="button">
+    <span class="bulb"></span>
+    <span id="themeLabel">暗房模式</span>
+  </button>
+</div>
+
+<header class="hero">
+  <div class="eyebrow">给零基础学生的机器学习读本</div>
+  <h1>老陈的照相馆</h1>
+  <p class="sub">
+    一间开了三十年的老照相馆，一个学统计的侄女，十二段对话。
+    从"什么是机器学习"到亲手训练模型、评估效果、货比三家选算法——
+    没有公式轰炸，只有老陈能听懂的大白话。
+  </p>
+  <div class="reel">
+    <span>ISO 100</span><span class="dot">·</span>
+    <span>共 12 章</span><span class="dot">·</span>
+    <span>R 语言实操</span><span class="dot">·</span>
+    <span>零基础友好</span>
+  </div>
+</header>
+
+<div class="layout">
+  <nav class="filmstrip" aria-label="章节导航">
+    <button class="frame-btn" data-target="ch01" aria-label="第1章 会认猫的照相馆"><span class="frame-num">01</span><span class="frame-label">会认猫的照相馆</span></button>
+<button class="frame-btn" data-target="ch02" aria-label="第2章 满分的徒弟，为什么一上考场就砸锅？"><span class="frame-num">02</span><span class="frame-label">满分的徒弟</span></button>
+<button class="frame-btn" data-target="ch03" aria-label="第3章 懒惰的天才——为什么准确率99%的模型，可能是个废物？"><span class="frame-num">03</span><span class="frame-label">懒惰的天才</span></button>
+<button class="frame-btn" data-target="ch04" aria-label="第4章 动手之前，先学会"看"数据"><span class="frame-num">04</span><span class="frame-label">动手之前</span></button>
+<button class="frame-btn" data-target="ch05" aria-label="第5章 老陈的第一个模型——像不像老师傅挑照片？"><span class="frame-num">05</span><span class="frame-label">老陈的第一个模型</span></button>
+<button class="frame-btn" data-target="ch06" aria-label="第6章 老陈第一次敲代码"><span class="frame-num">06</span><span class="frame-label">老陈第一次敲代码</span></button>
+<button class="frame-btn" data-target="ch07" aria-label="第7章 为什么同一个模型，跑出来的分数不一样？"><span class="frame-num">07</span><span class="frame-label">为什么同一个模型</span></button>
+<button class="frame-btn" data-target="ch08" aria-label="第8章 预测"是不是"，和预测"是多少"，不是一回事"><span class="frame-num">08</span><span class="frame-label">预测"是不是"</span></button>
+<button class="frame-btn" data-target="ch09" aria-label="第9章 电脑看不懂"朝阳区"，得先"翻译"一下"><span class="frame-num">09</span><span class="frame-label">电脑看不懂"朝阳区"</span></button>
+<button class="frame-btn" data-target="ch10" aria-label="第10章 货比三家——到底该选哪个模型？"><span class="frame-num">10</span><span class="frame-label">货比三家</span></button>
+<button class="frame-btn" data-target="ch11" aria-label="第11章 老陈的结业大考"><span class="frame-num">11</span><span class="frame-label">老陈的结业大考</span></button>
+<button class="frame-btn" data-target="ch12" aria-label="第12章 机器学习不是魔法"><span class="frame-num">12</span><span class="frame-label">机器学习不是魔法</span></button>
+  </nav>
+
+  <main class="content">
+    
+    <section class="frame-section" id="ch01" data-frame="01">
+      <div class="print">
+        <div class="print-header">
+          <span class="exposure-num">01 / 12</span>
+          <h2>第一章：会认猫的照相馆</h2>
+        </div>
+        <div class="print-body">
+          <p>老陈的照相馆开了三十年，冲洗照片、修底片，样样精通。可这几年数码相机、手机拍照普及了，生意一天比一天冷清。</p>
+<p>这天，他侄女小雨放假回家，看见舅舅坐在柜台后面唉声叹气，就问：</p>
+<p>"舅舅，你愁什么呢？"</p>
+<p>"唉，"老陈叹口气，"隔壁新开了家'智能冲印店'，说是能自动把照片里的猫、狗、人分类整理，客人可喜欢了。我这老手艺，比不过人家的机器啊。"</p>
+<p>小雨眼睛一亮："舅舅，那机器不是什么魔法，它就是一个学过怎么认猫认狗的电脑程序而已。这个东西叫'机器学习'。我教你，行不行？"</p>
+<p>老陈将信将疑："电脑也能'学'东西？它又没长眼睛。"</p>
+<p>"当然能学。"小雨拉了把椅子坐下，"不过它学的方式，跟人不太一样。我给你讲讲。"</p>
+<hr />
+<h3>电脑是怎么"认出"一只猫的？</h3>
+<p>小雨拿出手机，翻出几张照片。</p>
+<p>"舅舅，你小时候是怎么学会认猫的？"</p>
+<p>"这还用学？看得多了，自然就认得了呗。小时候看见一只毛茸茸、四条腿、会喵喵叫的动物，大人告诉我'这是猫'，看多了我就记住了。"</p>
+<p>"对喽！"小雨拍手，"电脑也是这么'学'的——只不过它看的不是活猫，而是<strong>成千上万张贴了标签的照片</strong>。"</p>
+<p>她举了个例子：假设我们给电脑看一万张照片，每张照片旁边都写着"这是猫"或者"这不是猫"。电脑一开始什么都不懂，就像一个刚出生的婴儿。但它会去找规律：猫的照片里，是不是经常出现尖耳朵、圆眼睛、胡须这些特征？</p>
+<p>看得多了，电脑心里（其实是它内部的一堆数字）就会慢慢总结出一套"什么样子算是猫"的标准。</p>
+<p>"这个过程，"小雨说，"就叫<strong>训练</strong>。给电脑看的这一万张已经标好答案的照片，就叫<strong>训练数据</strong>。"</p>
+<p>老陈若有所思："那……如果以后来了一张新照片，从来没给它看过的，它也能认出来？"</p>
+<p>"没错！这就是机器学习最神奇的地方——它不是死记硬背，而是学会了'认猫的规律'，所以见到没见过的新照片，也能猜个八九不离十。这叫<strong>泛化能力</strong>，说白了就是'举一反三'。"</p>
+<hr />
+<h3>电脑也会"猜错"</h3>
+<p>老陈笑了："那它会不会把我家那只波斯猫认成一团拖把？"</p>
+<p>小雨也笑："完全有可能！机器学习不是百分之百准确的。它是在<strong>猜</strong>，只不过猜得有依据、有概率。猜错了没关系，只要整体上猜对的比例够高，这个系统就算'学得不错'。"</p>
+<p>"就像你带徒弟一样，"小雨补充道，"徒弟一开始冲坏底片是正常的，练得多了，错误率就会越来越低。电脑也是这样，训练得越充分、数据给得越多越好，它猜错的概率就越低。"</p>
+<p>老陈摸着下巴："那这跟我们平时说的'人工智能'是一回事吗？"</p>
+<p>"'人工智能'是个很大的概念，指的是让机器表现得'聪明'。而'机器学习'是实现人工智能的一种常见方法——<strong>让电脑通过看数据、找规律，自己学会做判断，而不是程序员把每条规则都写死。</strong>"</p>
+<p>她补充："比如老式的程序，是程序员一条条写规则：'如果耳朵是三角形，并且有胡须，那就是猫'。这种写法很死板，规则写不全，碰到特殊情况就傻眼。而机器学习不这样——它自己从大量例子里总结规律，规则是'学'出来的，不是人'写'出来的。"</p>
+<hr />
+<h3>今天的小结</h3>
+<p>老陈低头琢磨了半天，总结道：</p>
+<blockquote>
+<p>"所以你的意思是：机器学习，就是给电脑看一大堆'题目带答案'的例子，让它自己总结出规律，以后碰到新题目，它就能照着规律去猜答案。猜得越准，说明它学得越好。"</p>
+</blockquote>
+<p>"舅舅，你悟性真高！"小雨竖起大拇指，"这就是机器学习最核心的思想。剩下的，无非是：</p>
+<ol>
+<li>上哪儿找这些'带答案的例子'（数据从哪来）</li>
+<li>电脑具体是怎么'总结规律'的（算法怎么设计）</li>
+<li>怎么知道它学得好不好（如何评估）</li>
+</ol>
+<p>这三件事，我们以后一章一章慢慢讲。"</p>
+<p>老陈望着隔壁智能冲印店的招牌，若有所思地笑了："看来，我这把老骨头，也得学学新东西了。"</p>
+<hr />
+<p><strong>下一章预告：</strong> 小雨要教老陈认识"训练数据"和"测试数据"的区别——顺便揭穿一个新手最容易踩的坑：为什么电脑在"练习题"上考100分，在"真实考试"上却砸锅？</p>
+<hr />
+<h3>本章重点回顾（给学生看的小抄）</h3>
+<div class="card-wrap"><div class="card-tab">小抄卡片</div><table>
+<thead>
+<tr>
+<th>名词</th>
+<th>大白话解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>机器学习</td>
+<td>让电脑通过看例子自己总结规律，而不是人把规则写死</td>
+</tr>
+<tr>
+<td>训练</td>
+<td>电脑看大量带答案的例子、总结规律的过程</td>
+</tr>
+<tr>
+<td>训练数据</td>
+<td>拿来给电脑学习用的、已经标好答案的例子</td>
+</tr>
+<tr>
+<td>泛化能力</td>
+<td>电脑把学到的规律用在没见过的新例子上的能力</td>
+</tr>
+<tr>
+<td>猜错/准确率</td>
+<td>机器学习是"概率式猜测"，不追求100%对，追求整体猜得够准</td>
+</tr>
+</tbody>
+</table></div>
+        </div>
+      </div>
+    </section>
+    
+
+    <section class="frame-section" id="ch02" data-frame="02">
+      <div class="print">
+        <div class="print-header">
+          <span class="exposure-num">02 / 12</span>
+          <h2>第二章：满分的徒弟，为什么一上考场就砸锅？</h2>
+        </div>
+        <div class="print-body">
+          <p>隔了两天，小雨又来找老陈，手里拿着个笔记本电脑。</p>
+<p>"舅舅，我给你演示个真事儿。"她神秘一笑，"你还记得我表哥小刚吗？他去年考驾照的事。"</p>
+<p>老陈一拍大腿："记得！他把驾校那本模拟题库刷了十几遍，每道题的答案都背得滚瓜烂熟，模拟考次次满分。结果呢？上了真考场，题目换了个说法，他愣是懵了，挂了两次！"</p>
+<p>"对！"小雨说，"这个事儿，跟机器学习里一个特别经典的问题一模一样，叫<strong>过拟合</strong>。"</p>
+<hr />
+<h3>电脑也会"死记硬背"</h3>
+<p>小雨打开电脑，调出上次那批猫的照片。</p>
+<p>"舅舅，你想，如果我把这一万张猫的照片，全部都拿来训练，那电脑会怎么样？"</p>
+<p>"应该……学得挺好？"</p>
+<p>"一开始是的。但如果我们让电脑'学'得太狠、太久，它可能不是在总结'猫长什么样'的规律，而是<strong>直接把这一万张照片的细节都背下来了</strong>——比如第37张照片里那只猫身后有个红色的抱枕，第52张的猫尾巴恰好卷成个圈。"</p>
+<p>"这些细节跟'是不是猫'根本没关系啊！"老陈说。</p>
+<p>"就是这个道理。电脑却不知道，它把这些无关的小细节也当成了'规律'的一部分。于是——"</p>
+<p>小雨调出一张新照片，"——现在我拿一张它从没见过的猫的照片给它看，它可能因为背后没有红色抱枕，就误判说'这不是猫'。"</p>
+<p>老陈恍然大悟："跟小刚一样！他把题库背得死死的，可题目换个问法，他就不会了，因为他压根没理解规律，只是硬记答案！"</p>
+<p>"对，这就叫<strong>过拟合</strong>：电脑（或者人）在'练习题'上表现得完美无缺，但换到没见过的'真实考题'上，表现却很差。说明它学到的不是规律，而是死记硬背的细节。"</p>
+<hr />
+<h3>怎么发现电脑是不是在死记硬背？</h3>
+<p>"那怎么知道电脑是真学会了，还是在背答案呢？"老陈问。</p>
+<p>"办法很简单，跟你监考学生一个道理："小雨说，"<strong>先把手里的题目分成两份，一份用来教，一份藏起来，谁都不准看，等'学生'学完了，再拿出来考它。</strong>"</p>
+<p>她解释道：假设我们有一万张猫和非猫的照片。我们不会把这一万张全部拿去训练，而是这样分：</p>
+<ul>
+<li><strong>训练集（Training Set）</strong>：比如八千张，专门给电脑用来学习、总结规律。</li>
+<li><strong>测试集（Test Set）</strong>：剩下的两千张，藏起来不让电脑看，等它训练完了，专门用来"考它"，检验它到底学得怎么样。</li>
+</ul>
+<p>"这两千张照片，就相当于小刚驾考那天，考场上真正抽到的题——是他从没见过的。"</p>
+<p>老陈点点头："这样一来，如果电脑在训练集上考100分，测试集上却只考60分，那就说明它是在死记硬背，学的不是真本事？"</p>
+<p>"完全正确！"小雨竖起大拇指，"这种'训练集分数远高于测试集分数'的现象，就是过拟合最明显的信号。"</p>
+<hr />
+<h3>那……学得太少也不行</h3>
+<p>老陈又问："那是不是训练的时候，越少看几遍照片，就越不容易死记硬背？"</p>
+<p>"这也不对，"小雨摇摇头，"如果电脑压根没怎么学，规律都没总结出来，那它在训练集和测试集上都会表现得很差——这种情况有个名字，叫<strong>欠拟合</strong>，说白了就是'压根没学明白'，属于'太懒'，跟小刚完全不刷题、连基本规则都不懂就去考试一样。"</p>
+<p>小雨在纸上画了张图给老陈看（意思如下）：</p>
+<div class="card-wrap"><div class="card-tab">小抄卡片</div><table>
+<thead>
+<tr>
+<th>情况</th>
+<th>训练集表现</th>
+<th>测试集表现</th>
+<th>好比</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>欠拟合</td>
+<td>差</td>
+<td>差</td>
+<td>完全没复习，规则都不懂</td>
+</tr>
+<tr>
+<td>刚刚好</td>
+<td>好</td>
+<td>好</td>
+<td>理解了规律，考题变一变也能应付</td>
+</tr>
+<tr>
+<td>过拟合</td>
+<td>极好</td>
+<td>差</td>
+<td>死记硬背题库，题目一变就懵</td>
+</tr>
+</tbody>
+</table></div>
+<p>"我们训练机器学习模型的目标，"小雨总结道，"不是让它在训练集上考满分，而是让它在<strong>没见过的新数据</strong>上也能表现得好。这才是真正学到了'规律'。"</p>
+<hr />
+<h3>老陈举一反三</h3>
+<p>老陈想了想，突然说："我明白了！我以前带徒弟冲洗照片，也从不会只让他反复冲同一张底片。我会给他很多<strong>不同</strong>的底片练手，然后专门留几张没让他碰过的，等他学得差不多了，再让他单独去冲——冲得好不好，就看那几张没练过的。"</p>
+<p>"舅舅，你这经验，比很多刚入门的机器学习工程师悟性还高！"小雨笑道，"其实说到底，<strong>机器学习和带徒弟、教学生，道理是相通的：光会做练习题不算真本事，能应对没见过的新情况，才是真的学会了。</strong>"</p>
+<hr />
+<p><strong>下一章预告：</strong> 小雨要给老陈介绍一个更棘手的问题——如果一万张照片里，有九千九百张都是"不是猫"，只有一百张才是"猫"，电脑会不会偷懒，干脆见啥都猜"不是猫"？这就是<strong>类别不平衡</strong>的坑，敬请期待第三章。</p>
+<hr />
+<h3>本章重点回顾（给学生看的小抄）</h3>
+<div class="card-wrap"><div class="card-tab">小抄卡片</div><table>
+<thead>
+<tr>
+<th>名词</th>
+<th>大白话解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>过拟合</td>
+<td>电脑把训练数据的细节死记硬背下来，遇到新数据表现差</td>
+</tr>
+<tr>
+<td>欠拟合</td>
+<td>电脑压根没学到规律，训练集和新数据上表现都差</td>
+</tr>
+<tr>
+<td>训练集</td>
+<td>用来教电脑、让它总结规律的数据</td>
+</tr>
+<tr>
+<td>测试集</td>
+<td>藏起来不让电脑看、专门用来检验它学得好不好的数据</td>
+</tr>
+<tr>
+<td>判断过拟合的标志</td>
+<td>训练集分数远高于测试集分数</td>
+</tr>
+</tbody>
+</table></div>
+        </div>
+      </div>
+    </section>
+    
+
+    <section class="frame-section" id="ch03" data-frame="03">
+      <div class="print">
+        <div class="print-header">
+          <span class="exposure-num">03 / 12</span>
+          <h2>第三章：懒惰的天才——为什么准确率99%的模型，可能是个废物？</h2>
+        </div>
+        <div class="print-body">
+          <p>过了几天，小雨又来了，这次脸上带着点神秘的笑意。</p>
+<p>"舅舅，我考考你。假如我做了一个'验血查癌症'的电脑模型，拿去测试，结果准确率是<strong>99%</strong>。你觉得这个模型厉害不厉害？"</p>
+<p>老陈想都没想："那当然厉害！一百个里错一个，还不厉害？"</p>
+<p>"我就知道你会这么说，"小雨笑了，"但我告诉你，这个模型可能是个<strong>彻头彻尾的废物</strong>，甚至比乱猜还糟糕。"</p>
+<p>老陈一愣："这怎么可能？99%的准确率还不厉害？"</p>
+<hr />
+<h3>懒惰的天才</h3>
+<p>小雨解释道："舅舅你想，现实中得癌症的人，在所有体检的人里面，占比是很小的，比如一千个人里可能就一个。也就是说，如果我做一个模型，<strong>它什么都不学，见谁都说'没病'</strong>，那它答对的概率是多少？"</p>
+<p>老陈掐指一算："999÷1000……差不多99.9%？"</p>
+<p>"没错！"小雨一拍手，"这个'什么都不学、见谁都说没病'的懒模型，准确率反而比我那个99%的模型还高！可它一个病人都没查出来，等于完全没用，甚至更危险——因为它会让真正的病人误以为自己没病。"</p>
+<p>老陈倒吸一口凉气："这么一说，'准确率高'根本不能说明问题啊！"</p>
+<p>"这就是机器学习里一个特别容易踩的坑，叫<strong>类别不平衡</strong>。"小雨说，"意思是，如果你的数据里，一类（比如'没病'）数量特别多，另一类（比如'有病'）数量特别少，那模型很容易变'懒'——它发现只要一律往数量多的那一类猜，就能拿到很高的准确率，何必费劲去分辨真正的规律呢？"</p>
+<hr />
+<h3>舅舅的照相馆类比</h3>
+<p>老陈想了想，说："这我懂！就好比我这照相馆，来冲照片的人，一百个里可能就一个是要放大加洗特殊尺寸的，剩下九十九个都是普通尺寸。如果我新来的学徒偷懒，见谁都当普通尺寸处理，他也能对九十九次——可那唯一一次特殊尺寸的客人，他保准搞砸。"</p>
+<p>"舅舅，这个比方打得太好了！"小雨说，"而且更糟糕的是——很多时候，我们真正在意的，恰恰是那个'少数派'。比如查癌症，我们最关心的就是能不能把'有病'的人揪出来，不是有没有把'没病'的人也判对。"</p>
+<hr />
+<h3>那该怎么衡量模型好不好？</h3>
+<p>"那不看准确率，看什么？"老陈问。</p>
+<p>小雨拿出纸笔，画了张简单的表格。</p>
+<p>"我们把预测结果分成四种情况："</p>
+<div class="card-wrap"><div class="card-tab">小抄卡片</div><table>
+<thead>
+<tr>
+<th></th>
+<th>电脑猜"有病"</th>
+<th>电脑猜"没病"</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>真的有病</strong></td>
+<td>猜对了（真阳性）</td>
+<td>猜漏了（假阴性，最危险！）</td>
+</tr>
+<tr>
+<td><strong>真的没病</strong></td>
+<td>猜错了（假阳性，虚惊一场）</td>
+<td>猜对了（真阴性）</td>
+</tr>
+</tbody>
+</table></div>
+<p>"对于查癌症这种任务，我们最怕的就是<strong>'假阴性'</strong>——明明有病，却被电脑说没病，这样病人会错过治疗时机，非常危险。"</p>
+<p>小雨接着介绍了两个更靠谱的指标：</p>
+<ul>
+<li><strong>召回率（Recall）</strong>：在所有真正有病的人里面，电脑找出了多少？——这个指标专门盯着"有没有漏掉真正的病人"。</li>
+<li><strong>精确率（Precision）</strong>：电脑说"有病"的这些人里面，有多少是真的有病？——这个指标关心"电脑是不是太敏感、经常虚惊一场"。</li>
+</ul>
+<p>"就拿刚才那个'懒模型'来说，"小雨说，"它见谁都猜没病，那它的召回率是<strong>0%</strong>——一个真正的病人都没找出来。这一下就暴露了它的废物本质，可'准确率'这个指标却完全看不出来。"</p>
+<p>老陈感叹："原来看病、看照相馆生意，道理都差不多——不能光看'整体对错比例'，得看清楚，你到底在意哪一类判断，别让电脑靠偷懒蒙混过关。"</p>
+<hr />
+<h3>遇到类别不平衡，能怎么办？</h3>
+<p>小雨简单列了几个常见思路（不涉及具体公式，先让舅舅有个印象）：</p>
+<ol>
+<li><strong>换一把尺子</strong>：不用"准确率"，改用"召回率""精确率"这类更能反映真实情况的指标。</li>
+<li><strong>让电脑多看看少数派</strong>：比如把"有病"的样本多复制几份，或者想办法多收集一些真实的"有病"案例，让电脑别再敢忽视这个类别。</li>
+<li><strong>给电脑设定"惩罚"</strong>：如果电脑把"有病"的人错判成"没病"，就让它受到比"误判没病的人为有病"更重的惩罚，逼着它认真对待少数派。</li>
+</ol>
+<p>"这些具体怎么做，"小雨说，"我们以后用真实数据练习的时候，会手把手教你操作。今天你只要记住一件事——"</p>
+<blockquote>
+<p><strong>"准确率高"不等于"模型好"。数据不平衡的时候，尤其要留个心眼，看看电脑是不是在偷懒。</strong></p>
+</blockquote>
+<p>老陈重重点头："这道理，跟我当年挑徒弟一样。有的徒弟看着干活麻利，其实专捡容易的活儿干，难活儿一概躲着走——这种'徒弟'，留他有啥用？"</p>
+<hr />
+<p><strong>下一章预告：</strong> 小雨要带老陈看看真正的研究数据长什么样，教他怎么用简单的图表，一眼看出数据里藏着什么规律——这是动手做机器学习之前，最重要的一步：先"看懂"数据。</p>
+<hr />
+<h3>本章重点回顾（给学生看的小抄）</h3>
+<div class="card-wrap"><div class="card-tab">小抄卡片</div><table>
+<thead>
+<tr>
+<th>名词</th>
+<th>大白话解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>类别不平衡</td>
+<td>数据里某一类数量远多于另一类，模型容易偷懒只猜多数类</td>
+</tr>
+<tr>
+<td>准确率的陷阱</td>
+<td>数据不平衡时，准确率很高也可能说明模型没用</td>
+</tr>
+<tr>
+<td>假阴性</td>
+<td>真的是"有病/异常"，却被判成"没病/正常"——通常最危险</td>
+</tr>
+<tr>
+<td>召回率</td>
+<td>真正的少数派里，被电脑正确找出来的比例</td>
+</tr>
+<tr>
+<td>精确率</td>
+<td>电脑判定为"有病/异常"的里面，真正判对的比例</td>
+</tr>
+</tbody>
+</table></div>
+        </div>
+      </div>
+    </section>
+    
+
+    <section class="frame-section" id="ch04" data-frame="04">
+      <div class="print">
+        <div class="print-header">
+          <span class="exposure-num">04 / 12</span>
+          <h2>第四章：动手之前，先学会"看"数据</h2>
+        </div>
+        <div class="print-body">
+          <p>这天，小雨抱来一沓打印纸，往柜台上一放，纸上密密麻麻全是数字。</p>
+<p>老陈皱眉："这是什么天书？"</p>
+<p>"这是一份真实的研究数据，"小雨说，"记录了一批病人的年龄、体重、血压这些信息，还有他们最后有没有得某种病。以后我们要用它来练习做机器学习模型。"</p>
+<p>老陈翻了两页，直接败下阵来："这密密麻麻的数字，我一个都看不出门道啊。"</p>
+<p>"这就对喽，"小雨笑道，"这也是新手最容易犯的错——一上来就想着'训练模型'，结果数据长什么样都没搞明白，稀里糊涂就开始动手，最后模型出了问题都不知道毛病出在哪儿。真正有经验的人，<strong>动手建模之前，一定会先'看'数据</strong>，这一步有个名字，叫<strong>探索性数据分析</strong>，英文缩写EDA。"</p>
+<hr />
+<h3>先看"每一列"讲的是什么故事</h3>
+<p>"就像你冲照片之前，得先看看底片的曝光、构图对不对，"小雨说，"看数据也是一样，我们先一列一列地看。"</p>
+<p>她拿出电脑，把这堆数字变成了几张图。</p>
+<p><strong>第一步：看数字型的列——用直方图</strong></p>
+<p>"比如'年龄'这一列，"小雨说，"我们把年龄画成一张<strong>直方图</strong>——横轴是年龄段，竖轴是这个年龄段有多少人。"</p>
+<p>她画出一张图：大部分病人集中在40到65岁之间，两头人少，中间人多，像个小山包。</p>
+<p>"这有什么用？"老陈问。</p>
+<p>"用处可大了，"小雨说，"第一，能看出数据是不是'正常'——比如我要是看到有个人年龄写着'300岁'，那肯定是数据录入出错了，得处理掉，不然电脑会被这种离谱数据带偏。第二，能看出数据够不够全——比如这批数据里20岁以下的人几乎没有，那以后这个模型碰到年轻人，很可能判断不准，因为它压根没怎么'见过'年轻人的情况。"</p>
+<hr />
+<p><strong>第二步：看类别型的列——用条形图</strong></p>
+<p>"再比如'性别'或者'是否吸烟'这种列，"小雨接着说，"选项就那么几种，不是连续的数字，这种我们用<strong>条形图</strong>，一眼就能看出各个类别各占多少。"</p>
+<p>她又画了一张：吸烟的病人明显比不吸烟的病人少很多。</p>
+<p>老陈立刻联想到上一章的内容："这不就是你说的'类别不平衡'吗！"</p>
+<p>"舅舅你真是学以致用！"小雨竖起大拇指，"没错，看这种条形图，正是我们发现类别不平衡问题的第一步。"</p>
+<hr />
+<p><strong>第三步：看两个变量之间有没有关系——用散点图</strong></p>
+<p>"如果我想看看'年龄'和'血压'之间，是不是年纪越大血压越高，"小雨说，"这就要看两个变量之间的关系了，用<strong>散点图</strong>最直观——横轴放年龄，纵轴放血压，每个人在图上就是一个点。"</p>
+<p>图上的点隐约呈现出从左下到右上的趋势——年龄越大，点的位置越往上（血压越高）。</p>
+<p>"这种'一个变量变大，另一个也跟着变大'的现象，"小雨说，"叫<strong>正相关</strong>。如果是一个变大、另一个反而变小，就叫<strong>负相关</strong>。如果两个变量的点乱七八糟没有规律，那就说明它们之间没什么明显关系。"</p>
+<hr />
+<h3>别漏看的两件事：缺失值和异常值</h3>
+<p>小雨话锋一转，翻到数据表的某一行："舅舅你看，这一行的'体重'这一格是空的。"</p>
+<p>"哦，可能是那个病人没测体重呗。"</p>
+<p>"对，这种空着的格子，叫<strong>缺失值</strong>。"小雨说，"数据里有缺失值是很常见的事，我们得先想办法处理——比如直接删掉这一行，或者用其他病人的平均体重去填补。这一步如果跳过，很多机器学习的工具跑到这儿会直接报错，或者更糟——悄悄给你算出一个错误结果，你还蒙在鼓里。"</p>
+<p>她又指了指刚才那张年龄的直方图："还记得那个'300岁'的例子吗？这种明显不合理的数字，叫<strong>异常值</strong>。异常值有可能是数据录入错误，也有可能是真实但极端的特殊情况——不管哪种，我们都得留意，不能让电脑不加分辨地把它当成普通数据来学。"</p>
+<hr />
+<h3>老陈的顿悟</h3>
+<p>老陈盯着桌上那几张图，若有所思："我明白了。这就跟我冲印照片一个道理——正式印之前，我得先看看底片曝光对不对、有没有划痕、构图是不是完整。要是底片本身就有毛病，任凭我技术再好，冲出来的照片也好不了。"</p>
+<p>"太对了，"小雨说，"机器学习圈子里有句老话，叫<strong>'垃圾进，垃圾出'</strong>——意思是，不管你的模型多厉害、算法多先进，如果喂给它的数据本身有问题，它学出来的结果也一定好不了。所以在真正开始'训练模型'之前，花时间把数据看明白、整理干净，往往比模型本身还重要。"</p>
+<p>老陈感慨道："看来这机器学习，跟咱手艺人一个道理——工具再好，也得先把料看明白。"</p>
+<hr />
+<p><strong>下一章预告：</strong> 数据看明白了，小雨要正式带老陈搭建他的第一个机器学习模型——从最简单的一个开始，看看电脑到底是怎么"学"出一条能分辨"有病"和"没病"的规律的。</p>
+<hr />
+<h3>本章重点回顾（给学生看的小抄）</h3>
+<div class="card-wrap"><div class="card-tab">小抄卡片</div><table>
+<thead>
+<tr>
+<th>名词</th>
+<th>大白话解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>探索性数据分析（EDA）</td>
+<td>建模前，先通过图表把数据看明白、看清楚</td>
+</tr>
+<tr>
+<td>直方图</td>
+<td>展示一个数字型变量的分布情况，像不像小山包</td>
+</tr>
+<tr>
+<td>条形图</td>
+<td>展示一个类别型变量各选项各占多少</td>
+</tr>
+<tr>
+<td>散点图</td>
+<td>展示两个变量之间是否存在关系（正相关/负相关）</td>
+</tr>
+<tr>
+<td>缺失值</td>
+<td>数据表里空着没填的格子，需要处理</td>
+</tr>
+<tr>
+<td>异常值</td>
+<td>明显不合常理或极端的数据，需要留意</td>
+</tr>
+<tr>
+<td>垃圾进，垃圾出</td>
+<td>数据质量差，模型效果再好的算法也救不回来</td>
+</tr>
+</tbody>
+</table></div>
+        </div>
+      </div>
+    </section>
+    
+
+    <section class="frame-section" id="ch05" data-frame="05">
+      <div class="print">
+        <div class="print-header">
+          <span class="exposure-num">05 / 12</span>
+          <h2>第五章：老陈的第一个模型——像不像老师傅挑照片？</h2>
+        </div>
+        <div class="print-body">
+          <p>数据看明白了，小雨说："舅舅，今天我们正式动手，搭你人生第一个机器学习模型。"</p>
+<p>老陈搓了搓手，既紧张又兴奋："真要自己做？我可不会写代码。"</p>
+<p>"别急，"小雨笑道，"我不会一上来就丢一堆代码给你看。咱们先搞懂<strong>电脑到底是怎么'做判断'的</strong>，这个道理想明白了，代码不过是把这个道理'翻译'成电脑能懂的话而已。"</p>
+<hr />
+<h3>从老陈的"土办法"说起</h3>
+<p>小雨指着桌上那份病人数据："舅舅，如果不用电脑，让你凭经验，怎么判断一个人有没有得这个病？就凭你刚才看到的年龄、体重、血压这些信息。"</p>
+<p>老陈想了想，说："要我说啊，我会先看年龄——年纪大的，我多留个心眼。如果年纪大，再看看血压高不高，血压也高的话，那我就觉得，这人得病的可能性比较大。"</p>
+<p>小雨眼睛一亮："舅舅，你刚才这几句话，其实就是一个<strong>模型</strong>！"</p>
+<p>"啊？我这也算模型？"</p>
+<p>"当然算！"小雨说，"你看，你的判断过程是这样的："</p>
+<p>她在纸上画了个简单的流程图：</p>
+<div class="console"><div class="console-bar"><span class="console-dot"></span><span class="console-dot"></span><span class="console-dot"></span><span class="console-label">代码</span></div><pre><code>先看：年龄 &gt; 50 吗？
+   ├─ 不是 → 判断：没病
+   └─ 是   → 再看：血压 &gt; 140 吗？
+              ├─ 不是 → 判断：没病
+              └─ 是   → 判断：有病
+</code></pre></div>
+<p>"这种一步一步'先问一个问题、再问下一个问题'的判断方式，在机器学习里有个正式的名字，叫<strong>决策树</strong>。"</p>
+<p>老陈盯着这张图看了半天："我这土办法，居然还有个学名。"</p>
+<p>"而且，"小雨补充，"这正是机器学习里最容易理解的一种模型——因为它的判断逻辑，跟人脑子里琢磨事情的方式几乎一模一样，一环扣一环地问问题。"</p>
+<hr />
+<h3>电脑是怎么"学"出这些问题的？</h3>
+<p>"不过，"小雨说，"你刚才那几条判断规则，是凭你几十年经验总结出来的。电脑没有几十年经验，它是怎么想出'先看年龄、再看血压'这个顺序，还有'50岁''140'这些具体数字的呢？"</p>
+<p>老陈挠挠头："对啊，这些数字它咋知道？"</p>
+<p>"这就是训练的过程了，"小雨说，"电脑会在训练数据里，把每一列（年龄、血压、体重……）都试着当作'第一个问题'，然后再多试几个不同的分界数字（比如45岁、50岁、55岁……），看看用哪一列、切在哪个数字，能把'有病'和'没病'的人分得最开、分得最清楚。"</p>
+<p>"分得最清楚是什么意思？"</p>
+<p>"打个比方，"小雨说，"如果切在'年龄50岁'这个点，切出来一边95%都是有病的人，另一边95%都是没病的人，这就切得很好，两边'纯'。但如果随便一切，两边都是一半有病一半没病，那这个问题就没问出个所以然，等于白问。"</p>
+<p>"电脑会把所有列、所有可能的切法都试一遍，"小雨继续说，"挑出分得最'纯'的那种切法，作为第一个问题。然后在切出来的两堆数据里，各自重复这个过程，继续往下问，一直问到问不出更好的问题为止，或者达到我们设定的某个停止条件。"</p>
+<p>老陈感叹："原来电脑也是'货比三家'，把能问的问题都试一遍，挑出效果最好的。"</p>
+<p>"没错，这个'挑最好的切法'的过程，用到了一些统计学上的计算方法（比如衡量'纯不纯'的公式），我们以后动手做练习的时候，会具体展示给你看。今天你只要记住这个大道理就够了。"</p>
+<hr />
+<h3>一棵树可能不够——森林登场</h3>
+<p>老陈追问："那这一棵'决策树'，是不是问的问题越多、切得越细，就越准？"</p>
+<p>小雨摇摇头，指着第二章的内容提醒他："舅舅，你还记得过拟合吗？如果一棵树问的问题太多、切得太细，它很可能就是在死记硬背训练数据里的细枝末节，碰到新病人反而判断不准。"</p>
+<p>"那咋办？"</p>
+<p>"机器学习里有个很聪明的办法，叫<strong>随机森林</strong>——顾名思义，不只种一棵树，而是同时种很多棵'长得不太一样'的决策树，每棵树看到的数据、问的问题顺序都稍微不同。最后让所有的树一起'投票'，多数树认为'有病'，就判定为'有病'。"</p>
+<p>"这不就跟看病一样嘛，"老陈恍然大悟，"一个大夫可能看走眼，找好几个大夫一起会诊，投票表决，准确率自然更高！"</p>
+<p>"舅舅这个类比，简直是教科书级别的！"小雨忍不住鼓掌，"这正是随机森林背后的核心思想——<strong>单独一棵树容易犯错、容易过拟合，但一群'意见不完全一样'的树凑在一起投票，往往比任何一棵单独的树都更靠谱、更稳。</strong>"</p>
+<hr />
+<h3>老陈的第一次"训练"</h3>
+<p>小雨合上电脑："今天先不急着上手敲代码，我想让你先在脑子里把这个过程过一遍："</p>
+<ol>
+<li>给电脑看训练数据（一堆已经知道'有没有病'答案的病人信息）；</li>
+<li>电脑自动尝试各种'切法'，找出能把'有病'和'没病'分得最开的问题，一步步搭出一棵决策树（或者一群树，组成森林）；</li>
+<li>拿测试集（电脑没见过的新病人）来检验，看这棵树/这片森林，猜得准不准；</li>
+<li>如果测试集上表现不好，回头调整——比如换个模型、处理一下数据里的问题，再重新训练。</li>
+</ol>
+<p>老陈重复了一遍这四步，点点头："跟我带徒弟一模一样——先教，再考，考不好就回去总结哪儿没教明白，接着改进。"</p>
+<p>"下次咱们真的坐到电脑前，把这几步一步步敲出来，"小雨说，"你会发现，代码不过是把咱们今天聊的这些道理，翻译成电脑能听懂的语言而已，一点都不神秘。"</p>
+<hr />
+<p><strong>下一章预告：</strong> 小雨要带老陈第一次打开代码编辑器，把这一章讲的"决策树""随机森林"，真正跑起来、亲手训练出一个能用的模型。</p>
+<hr />
+<h3>本章重点回顾（给学生看的小抄）</h3>
+<div class="card-wrap"><div class="card-tab">小抄卡片</div><table>
+<thead>
+<tr>
+<th>名词</th>
+<th>大白话解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>模型</td>
+<td>一套从数据里总结出来、能用来做判断/预测的规则或流程</td>
+</tr>
+<tr>
+<td>决策树</td>
+<td>像人一步步问问题做判断一样，一层层拆分数据来给出结论</td>
+</tr>
+<tr>
+<td>切分/分裂</td>
+<td>电脑尝试用某个变量、某个数值把数据分成两堆，让两堆尽量"纯"</td>
+</tr>
+<tr>
+<td>随机森林</td>
+<td>同时训练很多棵略有差异的决策树，最后投票决定结果，比单棵树更稳</td>
+</tr>
+</tbody>
+</table></div>
+        </div>
+      </div>
+    </section>
+    
+
+    <section class="frame-section" id="ch06" data-frame="06">
+      <div class="print">
+        <div class="print-header">
+          <span class="exposure-num">06 / 12</span>
+          <h2>第六章：老陈第一次敲代码</h2>
+        </div>
+        <div class="print-body">
+          <p>小雨把笔记本电脑转向老陈："今天正式上手。别慌，你会发现，R语言写起来，跟咱们上一章聊的那几步，几乎是一句话对一句话。"</p>
+<p>老陈盯着屏幕上一片空白的代码编辑器，紧张地搓着手："我这辈子没写过代码，行吗？"</p>
+<p>"舅舅，你连冲印相纸的化学配方比例都能背下来，"小雨笑道，"代码比那个简单多了。而且今天咱们不求你全懂，只求你看懂每一行大概在干嘛。"</p>
+<hr />
+<h3>第一步：把数据"请"进来</h3>
+<p>小雨敲下第一行代码：</p>
+<div class="console"><div class="console-bar"><span class="console-dot"></span><span class="console-dot"></span><span class="console-dot"></span><span class="console-label">R</span></div><div class="console"><div class="console-bar"><span class="console-dot"></span><span class="console-dot"></span><span class="console-dot"></span><span class="console-label">代码</span></div><pre><code># 读取病人数据
+patients &lt;- read.csv(&quot;patients.csv&quot;)
+
+# 先看看数据长什么样
+head(patients)
+</code></pre></div></div>
+<p>"<code>read.csv</code>，"小雨解释道，"就是让电脑把咱们上次看的那份数据表格读进来，存成一个叫<code>patients</code>的东西，你可以把它想象成一张Excel表格，只不过现在是电脑'拿在手里'了。"</p>
+<p>"<code>head(patients)</code>是干嘛的？"</p>
+<p>"就是让电脑把这张表格的前几行打印出来给你看看，跟你翻开一本相册看看前几张照片一个道理，先有个大概印象。"</p>
+<p>屏幕上跳出一张小表格，几列数字整整齐齐排列着：年龄、体重、血压、是否患病……</p>
+<p>老陈盯着看了半天："这不就是我上次看的那堆纸吗？只不过现在电脑'拿着'了。"</p>
+<p>"完全正确！"</p>
+<hr />
+<h3>第二步：分成训练集和测试集</h3>
+<p>"还记得第二章讲的吗？"小雨说，"咱们得把数据分成两份，一份用来教电脑，一份藏起来考它。"</p>
+<div class="console"><div class="console-bar"><span class="console-dot"></span><span class="console-dot"></span><span class="console-dot"></span><span class="console-label">R</span></div><div class="console"><div class="console-bar"><span class="console-dot"></span><span class="console-dot"></span><span class="console-dot"></span><span class="console-label">代码</span></div><pre><code># 设定一个&quot;种子&quot;，让每次随机分组的结果都一样，方便重复实验
+set.seed(123)
+
+# 随机挑80%的病人做训练集，剩下20%做测试集
+n &lt;- nrow(patients)
+train_index &lt;- sample(1:n, size = 0.8 * n)
+
+train_data &lt;- patients[train_index, ]   # 训练集
+test_data  &lt;- patients[-train_index, ]  # 测试集（剩下的部分）
+</code></pre></div></div>
+<p>老陈指着"种子"两个字："这跟种地有啥关系？"</p>
+<p>小雨笑了："这是个技术上的说法，跟种地没关系。因为电脑'随机'分组的时候，其实背后是按照某种规则算出来的'伪随机数'，如果你给它一个固定的'种子'数字（这里是123），那么每次运行代码，'随机'抽出来的结果都会完全一样。这样一来，你今天跑的结果，我明天在我电脑上跑，也能得到一模一样的结果，方便咱俩对照、也方便你以后检查代码有没有问题。"</p>
+<p>"<code>0.8 * n</code>，"老陈指着这行，试着自己理解，"是不是就是取80%的病人？"</p>
+<p>"舅舅你都会举一反三了！"小雨竖起大拇指。</p>
+<hr />
+<h3>第三步：训练一棵决策树</h3>
+<p>"接下来，正式请出上一章讲的决策树。"小雨说着，敲下几行代码：</p>
+<div class="console"><div class="console-bar"><span class="console-dot"></span><span class="console-dot"></span><span class="console-dot"></span><span class="console-label">R</span></div><div class="console"><div class="console-bar"><span class="console-dot"></span><span class="console-dot"></span><span class="console-dot"></span><span class="console-label">代码</span></div><pre><code># 加载能训练决策树的工具包
+library(rpart)
+
+# 训练一棵决策树：用年龄、体重、血压，来预测&quot;是否患病&quot;
+tree_model &lt;- rpart(disease ~ age + weight + blood_pressure,
+                     data = train_data,
+                     method = &quot;class&quot;)
+</code></pre></div></div>
+<p>"这个<code>~</code>符号，"小雨解释，"念作'波浪号'，你可以把它读成'由……来预测'。这一整句话的意思就是：<strong>用age（年龄）、weight（体重）、blood_pressure（血压）这几列，来预测disease（是否患病）这一列。</strong>"</p>
+<p>老陈端详着这行代码，突然说："这不就跟咱们上次画的那个流程图一个意思吗？只不过现在是拿代码写出来，让电脑自己去找'先看哪个、切在哪个数字'。"</p>
+<p>"一点不差！<code>data = train_data</code>，就是告诉电脑，只准看训练集这80%的数据来学，测试集那20%先藏起来。"</p>
+<hr />
+<h3>第四步：让电脑"考试"</h3>
+<p>"树训练好了，"小雨说，"现在轮到检验它学得怎么样了。"</p>
+<div class="console"><div class="console-bar"><span class="console-dot"></span><span class="console-dot"></span><span class="console-dot"></span><span class="console-label">R</span></div><div class="console"><div class="console-bar"><span class="console-dot"></span><span class="console-dot"></span><span class="console-dot"></span><span class="console-label">代码</span></div><pre><code># 用训练好的树，对测试集里的病人做预测
+predictions &lt;- predict(tree_model, test_data, type = &quot;class&quot;)
+
+# 把预测结果跟真实答案摆在一起对比
+table(predicted = predictions, actual = test_data$disease)
+</code></pre></div></div>
+<p>屏幕上跳出一张小表格，四个数字整整齐齐排成2×2的格子。</p>
+<p>"舅舅，还记得上一章那张'四种情况'的表格吗？这就是它的真实版本。"小雨指着表格，"对角线上的两个数字，是电脑猜对的人数；另外两个角上的数字，是猜错的——一个是把没病的人错判成有病（虚惊一场），一个是把有病的人错判成没病（这个最危险，还记得第三章讲的'假阴性'吗）。"</p>
+<p>老陈盯着那两个数字，若有所思："看来光看'猜对了多少个'不够，我还得specifically盯着那个'漏掉真正病人'的数字。"</p>
+<p>"舅舅，你现在的水平，已经超过很多新手了。"小雨由衷地说。</p>
+<hr />
+<h3>第五步：种一片森林</h3>
+<p>"最后，"小雨说，"咱们把上一章讲的随机森林也跑一遍，看看'一群树投票'是不是真的比'一棵树'更靠谱。"</p>
+<div class="console"><div class="console-bar"><span class="console-dot"></span><span class="console-dot"></span><span class="console-dot"></span><span class="console-label">R</span></div><div class="console"><div class="console-bar"><span class="console-dot"></span><span class="console-dot"></span><span class="console-dot"></span><span class="console-label">代码</span></div><pre><code>library(randomForest)
+
+# 训练一片随机森林，包含500棵树
+forest_model &lt;- randomForest(as.factor(disease) ~ age + weight + blood_pressure,
+                              data = train_data,
+                              ntree = 500)
+
+# 同样用测试集来检验
+forest_predictions &lt;- predict(forest_model, test_data)
+table(predicted = forest_predictions, actual = test_data$disease)
+</code></pre></div></div>
+<p>"<code>ntree = 500</code>，"老陈猜道，"是不是说这片森林里种了500棵树？"</p>
+<p>"完全正确！每一棵树看数据的角度都稍有不同，最后500棵树一起投票，得出最终判断。"</p>
+<p>对比两张表格，森林的预测结果，猜错的数字明显比单棵树要少。</p>
+<p>老陈感慨："真跟你说的一样，一个大夫看，不如一群大夫会诊。"</p>
+<hr />
+<h3>老陈的收获</h3>
+<p>小雨合上电脑，总结道："今天这几行代码，其实就是把咱们前五章聊的道理，一步步落地："</p>
+<ol>
+<li>把数据'请'进电脑（<code>read.csv</code>）</li>
+<li>分成训练集和测试集，藏起一部分'真题'（<code>sample</code>）</li>
+<li>训练模型，让电脑自己找规律（<code>rpart</code> / <code>randomForest</code>）</li>
+<li>拿测试集'考它'，看看学得怎么样（<code>predict</code> + <code>table</code>）</li>
+</ol>
+<p>老陈看着屏幕上跑出来的结果，感慨道："原来代码不可怕，可怕的是不明白这些代码背后到底在干嘛。你今天没让我死记这些函数名，而是先让我懂了道理，代码就跟翻译一样，一下就看明白了。"</p>
+<p>"这也是我一直想教给你的东西，"小雨笑道，"<strong>机器学习的代码，只是把思路'翻译'成电脑能懂的语言。思路想通了，代码不过是个熟练工具，多练几次就顺手了。</strong>"</p>
+<hr />
+<p><strong>下一章预告：</strong> 老陈的模型跑出来了，但小雨发现了一个问题——如果换一批数据重新跑一次，模型给出的准确率居然不太一样，忽高忽低。这是怎么回事？下一章，小雨要给老陈讲讲<strong>交叉验证</strong>，教他怎么更靠谱地评估一个模型到底好不好。</p>
+<hr />
+<h3>本章重点回顾（给学生看的小抄）</h3>
+<div class="card-wrap"><div class="card-tab">小抄卡片</div><table>
+<thead>
+<tr>
+<th>代码/名词</th>
+<th>大白话解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>read.csv()</code></td>
+<td>把表格数据读进电脑里</td>
+</tr>
+<tr>
+<td><code>set.seed()</code></td>
+<td>固定"随机"的结果，方便重复实验、对照检查</td>
+</tr>
+<tr>
+<td><code>sample()</code></td>
+<td>从数据里随机抽出一部分，比如用来做训练集</td>
+</tr>
+<tr>
+<td><code>rpart()</code></td>
+<td>训练一棵决策树的函数</td>
+</tr>
+<tr>
+<td><code>randomForest()</code></td>
+<td>训练一片随机森林（很多棵树）的函数</td>
+</tr>
+<tr>
+<td><code>predict()</code></td>
+<td>让训练好的模型对新数据做预测</td>
+</tr>
+<tr>
+<td><code>~</code>（波浪号）</td>
+<td>读作"由……来预测"，连接被预测的列和用来预测的列</td>
+</tr>
+</tbody>
+</table></div>
+        </div>
+      </div>
+    </section>
+    
+
+    <section class="frame-section" id="ch07" data-frame="07">
+      <div class="print">
+        <div class="print-header">
+          <span class="exposure-num">07 / 12</span>
+          <h2>第七章：为什么同一个模型，跑出来的分数不一样？</h2>
+        </div>
+        <div class="print-body">
+          <p>第二天，老陈兴冲冲地跑来找小雨："我昨晚自己又跑了一遍你教我的代码，就把那个'种子'数字换了一下，你猜怎么着——准确率从85%变成了78%！这模型是不是坏了？"</p>
+<p>小雨笑了："舅舅，模型没坏，这恰恰说明了一件很重要的事——<strong>咱们上次那种'只切一次训练集和测试集'的评估方法，其实不太靠谱。</strong>"</p>
+<p>"啊？上一章不是你教我的吗？"老陈一脸疑惑。</p>
+<p>"没错，那一章是为了让你先明白'训练集/测试集'这个基本道理。但实际操作中，光切一次，结果会受运气影响——万一恰好抽到的这20%测试集，凑巧都是些'好猜'的病人，模型看起来就特别厉害；万一凑巧抽到一堆'难猜'的病人，模型看起来就很差。这不是模型真实水平变了，是<strong>抽样的运气</strong>在捣乱。"</p>
+<hr />
+<h3>老陈的类比：只考一次试，公平吗？</h3>
+<p>老陈想了想："这就跟我评价一个徒弟手艺一样。要是我只让他冲一次照片，凑巧那批底片质量特别好，他也能显得手艺不错；要是凑巧那批底片本身就有瑕疵，他再厉害也冲不好。只看一次，不公平。"</p>
+<p>"舅舅这比方又打对了！"小雨说，"所以更靠谱的做法是——<strong>别只考一次，多考几次，取个平均分，这样才能真实反映水平。</strong>这个办法，在机器学习里就叫<strong>交叉验证</strong>。"</p>
+<hr />
+<h3>交叉验证是怎么"多考几次"的？</h3>
+<p>小雨拿出纸笔，画了个示意图。</p>
+<p>"最常用的一种叫<strong>K折交叉验证</strong>（K-fold Cross Validation）。假设K取5，意思是——"</p>
+<p>她一边画一边解释：</p>
+<ol>
+<li>把手里所有的数据，平均切成<strong>5份</strong>。</li>
+<li><strong>第一轮</strong>：拿第1份当'测试集'，其余4份合起来当'训练集'，训练模型、算一个分数。</li>
+<li><strong>第二轮</strong>：换成拿第2份当'测试集'，其余4份当'训练集'，再训练、再算一个分数。</li>
+<li>这样轮流下去，一共进行<strong>5轮</strong>，每一份数据都轮流当过一次'测试集'。</li>
+<li>最后，把这5轮算出来的5个分数，取个<strong>平均值</strong>，作为模型最终、更可信的评估结果。</li>
+</ol>
+<p>"这样一来，"小雨总结道，"每一份数据都有机会被拿来'考过'模型一次，不会因为哪一次抽签抽得'走运'或'倒霉'，就让评估结果失真。"</p>
+<p>老陈盯着这张图看了半天，突然说："我明白了！这就跟我评价徒弟，不能只看他冲一次照片，得让他连着冲个五批不同的底片，把这五次的表现都算进去，取个平均，这样评价才公平、才靠谱！"</p>
+<p>"舅舅，你这理解能力，都可以来教这门课了。"小雨笑道。</p>
+<hr />
+<h3>用代码跑一遍交叉验证</h3>
+<p>"咱们把这个想法用代码实现一下，"小雨说着，敲下几行：</p>
+<div class="console"><div class="console-bar"><span class="console-dot"></span><span class="console-dot"></span><span class="console-dot"></span><span class="console-label">R</span></div><div class="console"><div class="console-bar"><span class="console-dot"></span><span class="console-dot"></span><span class="console-dot"></span><span class="console-label">代码</span></div><pre><code>library(caret)
+
+# 设置交叉验证的方式：5折交叉验证
+train_control &lt;- trainControl(method = &quot;cv&quot;, number = 5)
+
+# 训练模型，同时自动完成5折交叉验证
+cv_model &lt;- train(as.factor(disease) ~ age + weight + blood_pressure,
+                   data = patients,
+                   method = &quot;rf&quot;,          # rf 表示随机森林
+                   trControl = train_control)
+
+# 查看交叉验证的结果
+print(cv_model)
+</code></pre></div></div>
+<p>"<code>trainControl(method = "cv", number = 5)</code>，"小雨解释道，"就是告诉电脑：咱们要用'5折交叉验证'这种方式来评估模型。"</p>
+<p>"<code>train(...)</code>这个函数，"她继续说，"跟上一章的<code>randomForest()</code>类似，都是训练模型，但这次它会自动帮你把数据切成5份，轮流训练、评估，最后把5次的结果汇总、取平均，直接打印给你看。"</p>
+<p>老陈看着屏幕上跳出来的结果："这次打印出来的准确率，是不是就比咱们上次那个'只切一次'的结果，更值得信任？"</p>
+<p>"完全正确！这个数字，才是模型真实水平比较靠谱的估计。"</p>
+<hr />
+<h3>一个容易搞混的地方：验证集 vs. 测试集</h3>
+<p>小雨补充道："这里有个细节，容易把新手搞晕，我特意提一下。"</p>
+<p>"交叉验证过程中被轮流当作'测试'的那几份数据，更准确的名字，其实叫<strong>验证集（Validation Set）</strong>，而不是'测试集'。这两个词经常被搞混，我给你捋一捋区别："</p>
+<ul>
+<li><strong>验证集</strong>：在咱们还在'调整'模型、试验不同做法（比如换换看是决策树好还是随机森林好、树该种多少棵）的<strong>过程中</strong>，用来帮咱们做选择、做参考的数据。</li>
+<li><strong>测试集</strong>：等咱们已经完全定下最终要用的模型之后，最后才拿出来，用一次、只用一次，检验这个"定案"的模型到底表现如何的数据。测试集就像最终的"期末大考"，考完就不再回头改模型了。</li>
+</ul>
+<p>"打个比方，"小雨说，"验证集有点像平时的<strong>模拟考</strong>，可以多考几次，帮你摸清楚自己哪里薄弱、该怎么调整复习方法；而测试集是真正的<strong>期末考试</strong>，只考一次，考完成绩就是成绩，不能拿这次考试的结果回头去'调整复习方法'，那样就'漏题'了，评估出来的分数也不可信了。"</p>
+<p>老陈点头："所以做交叉验证的时候，其实是在拿'模拟考'反复调整、挑模型；等真正定下模型了，才去用那次真正藏起来、从没碰过的'期末考'数据，来看最终成绩，对吧？"</p>
+<p>"舅舅，这个总结，教科书都写不出你这么清楚。"</p>
+<hr />
+<h3>今天的小结</h3>
+<p>小雨总结道："今天咱们解决了一个问题——<strong>怎么更靠谱地评估一个模型到底好不好，而不是被一次'走运'或'倒霉'的抽样结果给骗了。</strong>核心思路就是——多考几次，取平均，别只看一次成绩下定论。"</p>
+<p>老陈感慨道："这道理放哪儿都通——不管是评价徒弟、评价模型，都不能凭一次表现就下结论，得多看几回，才靠谱。"</p>
+<hr />
+<p><strong>下一章预告：</strong> 模型评估的方法学明白了，小雨要带老陈研究另一个问题——同样是"预测"，为什么"预测房价"和"预测有没有得病"，用的思路和衡量方式完全不一样？下一章，咱们正式区分<strong>分类问题</strong>和<strong>回归问题</strong>。</p>
+<hr />
+<h3>本章重点回顾（给学生看的小抄）</h3>
+<div class="card-wrap"><div class="card-tab">小抄卡片</div><table>
+<thead>
+<tr>
+<th>名词</th>
+<th>大白话解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>交叉验证</td>
+<td>把数据多次轮流切成训练/测试，多考几次取平均，让评估更靠谱</td>
+</tr>
+<tr>
+<td>K折交叉验证</td>
+<td>把数据切成K份，轮流拿1份当测试、其余当训练，重复K次</td>
+</tr>
+<tr>
+<td>验证集</td>
+<td>调整模型过程中反复使用的"模拟考"数据</td>
+</tr>
+<tr>
+<td>测试集</td>
+<td>模型定案后，只用一次的"期末考"数据，考完不再回头调整</td>
+</tr>
+</tbody>
+</table></div>
+        </div>
+      </div>
+    </section>
+    
+
+    <section class="frame-section" id="ch08" data-frame="08">
+      <div class="print">
+        <div class="print-header">
+          <span class="exposure-num">08 / 12</span>
+          <h2>第八章：预测"是不是"，和预测"是多少"，不是一回事</h2>
+        </div>
+        <div class="print-body">
+          <p>这天店里同时来了两拨人。</p>
+<p>一个学徒探头问："师傅，这批底片，大概还要多久能冲完？"</p>
+<p>紧接着一个客人举着刚拿到的照片问："陈师傅您瞧瞧，这张是不是糊了？"</p>
+<p>老陈应付完两边，转头跟小雨念叨："你说怪不怪，同样是'预测'，一个我得回答'多长时间'，一个我得回答'是不是'。这俩问题，感觉不是一码事啊。"</p>
+<p>小雨眼睛一亮："舅舅，你这一句话，正好把今天要讲的东西点破了。机器学习里，这两种问题，有专门的名字——<strong>分类问题</strong>和<strong>回归问题</strong>。"</p>
+<hr />
+<h3>两种不同的"答案"</h3>
+<p>"咱们前面七章讲的，"小雨解释道，"其实全都是<strong>分类问题</strong>——预测一个人'有病'还是'没病'，预测一张照片'是猫'还是'不是猫'。这类问题的答案，永远是从几个<strong>固定的类别</strong>里选一个。"</p>
+<p>"那回归问题呢？"</p>
+<p>"回归问题的答案，"小雨说，"是一个<strong>连续的数字</strong>，可以是任何值，没有固定的几个选项。比如：预测一套房子卖多少钱、预测你徒弟冲完这批底片要多少分钟、预测明天的气温。这些答案，理论上可以是无穷多种可能的数字，不像'有病/没病'只有两个选项。"</p>
+<p>老陈琢磨了一下："所以，'是不是糊了'——这是分类问题，答案就'糊了'或'没糊'两种；'还要多久冲完'——这是回归问题，答案可能是10分钟、23分钟、45分钟，有无数种可能？"</p>
+<p>"舅舅，一点就通！"</p>
+<hr />
+<h3>换了问题，"考试方式"也得换</h3>
+<p>"这里有个特别关键的地方，"小雨说，"咱们前面几章学的'怎么评估模型好不好'——准确率、召回率、精确率——这些都是给<strong>分类问题</strong>量身定做的。可如果换成回归问题，这些指标全都用不上了。"</p>
+<p>"为啥用不上？"</p>
+<p>"你想，"小雨解释道，"'准确率'这种指标，是看'猜对了多少个'。可回归问题里，电脑猜房价猜了198万，真实成交价是200万，你说这算'猜对'还是'猜错'？"</p>
+<p>老陈挠头："这……说猜对吧，也差了2万；说猜错吧，也没差太远啊。"</p>
+<p>"对！这就是回归问题跟分类问题最大的不同——<strong>回归问题在乎的不是'对不对'，而是'差多少'。</strong>"小雨说，"所以回归问题得用另一套评估方式，专门衡量'电脑猜的数字，跟真实数字差了多少'。"</p>
+<hr />
+<h3>怎么衡量"差多少"？</h3>
+<p>小雨拿出纸笔："最直观的一种衡量方法，叫<strong>平均绝对误差（MAE）</strong>。"</p>
+<p>她画了个简单的例子：</p>
+<div class="card-wrap"><div class="card-tab">小抄卡片</div><table>
+<thead>
+<tr>
+<th>真实房价（万元）</th>
+<th>电脑猜的房价（万元）</th>
+<th>差多少</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>200</td>
+<td>198</td>
+<td>2</td>
+</tr>
+<tr>
+<td>150</td>
+<td>160</td>
+<td>10</td>
+</tr>
+<tr>
+<td>300</td>
+<td>295</td>
+<td>5</td>
+</tr>
+</tbody>
+</table></div>
+<p>"把每一次'差多少'都算出来，再取个平均，"小雨说，"得到的这个数字，就是MAE——<strong>平均下来，电脑每次猜的房价，大概偏差多少万元。</strong>这个数字越小，说明模型猜得越准。"</p>
+<p>老陈立刻反应过来："这不就跟我评价徒弟冲照片一样吗？他说'还要20分钟'，实际冲了25分钟，偏差5分钟；下次他说'还要15分钟'，实际冲了14分钟，偏差1分钟。把他历次预估的偏差都记下来，取个平均，就知道他'预估时间'这项本事到底准不准。"</p>
+<p>"舅舅这比方，跟MAE的道理一模一样！"</p>
+<p>小雨补充道："除了MAE，还有一种更常用的指标，叫<strong>均方根误差（RMSE）</strong>，算法上稍微复杂一点——它会把每次的偏差先平方一下，再求平均，最后开根号。这么做的效果是——<strong>如果某一次偏差特别离谱（比如猜的房价跟真实价差了100万），RMSE会把这种'离谱的错误'看得格外严重</strong>，惩罚力度比MAE更大。"</p>
+<p>"这又是为啥？"</p>
+<p>"打个比方，"小雨说，"如果你徒弟大部分时候预估时间都挺准，只有一次离谱地把'20分钟'说成'2小时'，MAE可能因为其他次都很准，被平均下来显得还好；但RMSE会因为这一次'离谱预估'被平方放大，狠狠拉高整体分数，提醒你——这种'离谱的错误'不能忽视，得重点关注。"</p>
+<p>老陈点头："明白了，MAE看的是'平均差多少'，RMSE更在意'有没有出现特别离谱的一次'。"</p>
+<hr />
+<h3>用代码跑一遍回归模型</h3>
+<p>"咱们把这个想法用代码实现一下，"小雨说，"用房价数据练练手，用最基础的<strong>线性回归</strong>模型。"</p>
+<div class="console"><div class="console-bar"><span class="console-dot"></span><span class="console-dot"></span><span class="console-dot"></span><span class="console-label">R</span></div><div class="console"><div class="console-bar"><span class="console-dot"></span><span class="console-dot"></span><span class="console-dot"></span><span class="console-label">代码</span></div><pre><code># 训练一个线性回归模型：用面积、卧室数量，来预测房价
+price_model &lt;- lm(price ~ area + bedrooms, data = train_data)
+
+# 用测试集来预测房价
+predicted_price &lt;- predict(price_model, test_data)
+
+# 算一算平均绝对误差（MAE）
+mae &lt;- mean(abs(predicted_price - test_data$price))
+print(mae)
+
+# 算一算均方根误差（RMSE）
+rmse &lt;- sqrt(mean((predicted_price - test_data$price)^2))
+print(rmse)
+</code></pre></div></div>
+<p>"这几行代码，是不是感觉跟第六章训练决策树的代码，结构特别像？"小雨问。</p>
+<p>老陈仔细比对："是啊，都是<code>模型 &lt;- 训练函数(公式, data = ...)</code>，然后<code>predict()</code>一下。就是训练函数从<code>rpart</code>换成了<code>lm</code>，评估的时候不再是<code>table()</code>对比对错，而是算'差多少'。"</p>
+<p>"这正是我想让你发现的地方——<strong>不管是分类问题还是回归问题，机器学习的整体流程（分训练测试、训练模型、评估表现）是相通的，真正变化的，只是'预测的是什么'和'怎么衡量准不准'这两件事。</strong>"</p>
+<hr />
+<h3>一个模型能不能"身兼两职"？</h3>
+<p>老陈突然问："那像决策树、随机森林这些，是不是也能拿来干回归的活儿，不一定非得是分类？"</p>
+<p>"问得好！"小雨说，"事实上，决策树和随机森林<strong>两种问题都能干</strong>。只不过用来做回归的时候，每个'叶子'给出的不再是'有病/没病'这样的类别，而是这堆数据的<strong>平均数字</strong>（比如这一堆房子的平均价格）。逻辑基本一致，只是最后给出答案的方式换了个样。"</p>
+<p>"这么说，"老陈总结道，"关键还是得先搞清楚——我现在面对的，到底是'预测类别'还是'预测数字'，想清楚这个，才知道该怎么衡量、该怎么解读结果。"</p>
+<p>"舅舅，今天这一章，你已经完全抓住重点了。"</p>
+<hr />
+<p><strong>下一章预告：</strong> 模型分清楚了，但小雨发现一个新麻烦——数据表里有一列写着"北京市朝阳区"，电脑根本不知道这是啥意思。下一章，小雨要教老陈怎么把这些"电脑看不懂"的信息，翻译成电脑能理解的数字，这个手艺，叫<strong>特征工程</strong>。</p>
+<hr />
+<h3>本章重点回顾（给学生看的小抄）</h3>
+<div class="card-wrap"><div class="card-tab">小抄卡片</div><table>
+<thead>
+<tr>
+<th>名词</th>
+<th>大白话解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>分类问题</td>
+<td>预测结果是几个固定类别中的一个（有病/没病、猫/不是猫）</td>
+</tr>
+<tr>
+<td>回归问题</td>
+<td>预测结果是一个连续的数字（房价、时长、温度）</td>
+</tr>
+<tr>
+<td>MAE（平均绝对误差）</td>
+<td>电脑猜的数字和真实数字，平均差多少</td>
+</tr>
+<tr>
+<td>RMSE（均方根误差）</td>
+<td>类似MAE，但对"特别离谱的错误"惩罚更重</td>
+</tr>
+<tr>
+<td>lm()</td>
+<td>R语言里训练线性回归模型的函数</td>
+</tr>
+</tbody>
+</table></div>
+        </div>
+      </div>
+    </section>
+    
+
+    <section class="frame-section" id="ch09" data-frame="09">
+      <div class="print">
+        <div class="print-header">
+          <span class="exposure-num">09 / 12</span>
+          <h2>第九章：电脑看不懂"朝阳区"，得先"翻译"一下</h2>
+        </div>
+        <div class="print-body">
+          <p>这天小雨拿来一份新数据——不是病人信息了，换成了房子信息，准备练回归模型。她扫了一眼数据表，突然皱起眉头。</p>
+<p>"怎么了？"老陈问。</p>
+<p>"舅舅你看这一列，"小雨指着屏幕，"'所在区域'这一列，写的是'朝阳区''海淀区''西城区'这种字。上一章咱们训练模型用的都是年龄、面积这种数字，这种'字'，电脑压根不知道怎么处理。"</p>
+<p>老陈凑过去看："这不就是地名嘛，谁都看得懂啊。"</p>
+<p>"人看得懂，"小雨说，"可电脑的脑子里，从头到尾都只会算数字，它根本不'认识'字。所以在把数据喂给模型之前，咱们得先想办法，把这些电脑看不懂的东西，<strong>"翻译"成电脑能算的数字</strong>。这门手艺，叫<strong>特征工程</strong>。"</p>
+<hr />
+<h3>什么是"特征"？</h3>
+<p>"先说说'特征'这个词，"小雨解释道，"其实咱们前面几章一直在用这个概念，只是没点破名字——<strong>数据表里，每一列能拿来给模型做判断依据的信息，就叫一个'特征'</strong>。比如'年龄'是一个特征，'血压'是一个特征，'面积'也是一个特征。"</p>
+<p>"那咱们说'预测的目标'，比如'是否患病'、'房价'，这个算不算特征？"</p>
+<p>"这个不算，"小雨说，"这个有专门的名字，叫<strong>标签</strong>（或者'目标变量'）——是咱们要模型去猜的答案。特征是'线索'，标签是'谜底'。"</p>
+<p>老陈总结："所以特征工程，就是把这些'线索'，尽量整理成电脑用得上的样子？"</p>
+<p>"完全正确！"</p>
+<hr />
+<h3>第一招：把"字"变成数字——独热编码</h3>
+<p>小雨拿出纸笔，画了个表格。</p>
+<p>"就拿'所在区域'这一列举例。假设一共只有三个区：朝阳、海淀、西城。咱们可以这么'翻译'——给每个区单独开一列，是这个区就打个'1'，不是就打个'0'。"</p>
+<div class="card-wrap"><div class="card-tab">小抄卡片</div><table>
+<thead>
+<tr>
+<th>房子</th>
+<th>朝阳区</th>
+<th>海淀区</th>
+<th>西城区</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>房子A（朝阳区）</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>房子B（海淀区）</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>房子C（西城区）</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+</tr>
+</tbody>
+</table></div>
+<p>"这个办法，"小雨说，"专业名字叫<strong>独热编码</strong>（One-Hot Encoding）。你可以把它想象成——给每个区弄一张'打勾选项表'，是哪个区，就在哪一列打勾（1），其余都不打勾（0）。"</p>
+<p>老陈想了想："这不就跟咱冲印单上那种'尺寸勾选表'一样嘛——5寸□ 6寸□ 8寸□，客人要哪个尺寸，就在哪个格子打勾，其余空着。"</p>
+<p>"舅舅这比方，简直是独热编码的活教材！"小雨笑道，"这样一来，原本电脑看不懂的'朝阳区'三个字，就变成了'1、0、0'这样一串它算得明白的数字了。"</p>
+<p><strong>为什么不能简单地把朝阳=1、海淀=2、西城=3？</strong></p>
+<p>老陈追问："那能不能省事点，干脆朝阳区标成1，海淀区标成2，西城区标成3？"</p>
+<p>"这是新手特别容易踩的一个坑，"小雨摇头，"如果这么标，电脑会误以为'西城区(3)是海淀区(2)的1.5倍'，或者'朝阳区(1)加海淀区(2)等于西城区(3)'——可这些数字之间的大小、加减关系，根本没有实际意义，区域名字之间是没有'谁比谁大'这种关系的。用独热编码，就是为了避免电脑产生这种莫名其妙的误会。"</p>
+<p>老陈恍然大悟："这么说，得看这一列数据本身有没有'大小顺序'的意义。要是像'学历'这种——小学、初中、高中、大学，确实一个比一个'高'，那标成1、2、3、4反倒合理？"</p>
+<p>"舅舅这个问题问得非常专业！"小雨说，"没错，像学历这种<strong>有顺序关系</strong>的类别，可以直接标成1、2、3、4，这种做法叫<strong>序号编码</strong>；但像区域、颜色这种<strong>没有顺序关系</strong>的类别，就该用独热编码，避免电脑误会出'谁大谁小'的关系。"</p>
+<hr />
+<h3>第二招：统一"度量单位"——标准化</h3>
+<p>小雨切换到另一个例子："再看这份房子数据里的另外两列——'面积'（单位是平方米，数值大概在50到300之间）和'卧室数量'（数值大概在1到5之间）。"</p>
+<p>"这俩数字看着都挺正常啊，"老陈说。</p>
+<p>"数字本身没问题，"小雨说，"但把它们放在一起喂给某些模型（尤其像'距离'相关的模型）时，会出大乱子。你想，面积的数字动不动就是一两百，卧室数量却只有个位数——如果电脑不加区分地直接比较这些数字，'面积'这一项，会因为数值本身就大，把'卧室数量'的影响力<strong>完全淹没掉</strong>，哪怕卧室数量其实同样重要。"</p>
+<p>"这跟单位不一样有关系吗？"老陈问。</p>
+<p>"关系大了。"小雨说，"就好比你量一个人的身高用'厘米'（数值一两百），量体重用'公斤'（数值几十），这两种单位数值大小差得远，但不代表身高就比体重'更重要'。咱们得想办法把这些<strong>不同量级的数字，统一到差不多的范围</strong>，让模型能公平地看待每一个特征，这个手艺，叫<strong>标准化</strong>（或者叫'归一化'）。"</p>
+<p>小雨给出一个直观的比方："标准化做的事情，有点像<strong>把不同货币换算成同一种货币</strong>——原本'面积用平方米、卧室数量用个数'，两者没法直接比较重要性，标准化之后，两列数字都被换算到一个统一的、可比较的范围里（比如都变成'平均值是0、上下浮动差不多大小'的样子），这样模型才能公平地权衡每个特征的分量。"</p>
+<hr />
+<h3>用代码跑一遍特征工程</h3>
+<div class="console"><div class="console-bar"><span class="console-dot"></span><span class="console-dot"></span><span class="console-dot"></span><span class="console-label">R</span></div><div class="console"><div class="console-bar"><span class="console-dot"></span><span class="console-dot"></span><span class="console-dot"></span><span class="console-label">代码</span></div><pre><code># 第一招：独热编码——把&quot;所在区域&quot;变成模型能懂的数字
+library(caret)
+dummy_vars &lt;- dummyVars(~ region, data = houses)
+region_encoded &lt;- predict(dummy_vars, houses)
+
+# 第二招：标准化——把&quot;面积&quot;和&quot;卧室数量&quot;统一到可比较的范围
+houses$area_scaled     &lt;- scale(houses$area)
+houses$bedrooms_scaled &lt;- scale(houses$bedrooms)
+</code></pre></div></div>
+<p>"<code>dummyVars()</code>，"小雨解释，"就是帮你自动完成独热编码，把'朝阳区/海淀区/西城区'这种字，转换成一列列的0和1。"</p>
+<p>"<code>scale()</code>，"她继续说，"就是帮你自动完成标准化，把面积、卧室数量这些数值范围差异很大的列，统一调整到可以公平比较的范围。"</p>
+<p>老陈盯着代码看了一会儿："这两行代码，看着挺简单嘛，可你刚才讲的道理，倒是让我琢磨了半天。"</p>
+<p>"这也是我一直想强调的，"小雨说，"<strong>特征工程这一步，代码本身往往不难，难的是你得懂'为什么要这么处理'，不然照猫画虎地抄代码，遇到新情况就抓瞎。</strong>"</p>
+<hr />
+<h3>老陈的顿悟：好食材比好厨艺更重要</h3>
+<p>小雨总结道："今天讲的这些道理，其实呼应了第四章讲过的'垃圾进，垃圾出'。特征工程做得好不好，直接决定了模型能不能学出真本事——就算你用了再厉害的算法（决策树、随机森林、什么高级模型都上），如果喂给它的特征本身处理得乱七八糟，模型照样学不出好结果。"</p>
+<p>老陈深有感触："这就跟咱冲照片一样——底片本身没处理好（曝光不对、显影时间不对），任凭我手艺再高，也冲不出好照片。食材没备好，厨艺再高的大厨也做不出好菜。"</p>
+<p>"舅舅，你这句'食材比厨艺更重要'，我建议直接写进小抄里。"</p>
+<hr />
+<p><strong>下一章预告：</strong> 特征处理好了，模型也训练出来了，可老陈心里犯嘀咕——决策树、随机森林、线性回归，这么多种模型，到底该选哪个？下一章，小雨要教老陈"货比三家"的本事——怎么系统地比较模型、调整参数，挑出真正合适的那一个。</p>
+<hr />
+<h3>本章重点回顾（给学生看的小抄）</h3>
+<div class="card-wrap"><div class="card-tab">小抄卡片</div><table>
+<thead>
+<tr>
+<th>名词</th>
+<th>大白话解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>特征</td>
+<td>数据表里能拿来做判断依据的一列信息（线索）</td>
+</tr>
+<tr>
+<td>标签</td>
+<td>咱们要模型去预测的答案（谜底）</td>
+</tr>
+<tr>
+<td>特征工程</td>
+<td>把原始数据整理、转换成模型能有效使用的样子</td>
+</tr>
+<tr>
+<td>独热编码</td>
+<td>把没有大小顺序的类别（如地区）拆成多列0/1，避免电脑误会出大小关系</td>
+</tr>
+<tr>
+<td>序号编码</td>
+<td>把有大小顺序的类别（如学历）直接标成有序数字</td>
+</tr>
+<tr>
+<td>标准化</td>
+<td>把数值范围差异很大的特征，统一调整到可公平比较的范围</td>
+</tr>
+<tr>
+<td>好食材比好厨艺更重要</td>
+<td>特征质量往往比模型选择本身更影响最终效果</td>
+</tr>
+</tbody>
+</table></div>
+        </div>
+      </div>
+    </section>
+    
+
+    <section class="frame-section" id="ch10" data-frame="10">
+      <div class="print">
+        <div class="print-header">
+          <span class="exposure-num">10 / 12</span>
+          <h2>第十章：货比三家——到底该选哪个模型？</h2>
+        </div>
+        <div class="print-body">
+          <p>老陈这几天学得起劲，某天突然抛出一个问题："小雨啊，你教我的模型都好几种了——决策树、随机森林、线性回归……我要是真碰上一个新问题，到底该用哪个？"</p>
+<p>小雨笑道："这个问题，问到点子上了。今天咱们就来聊聊——<strong>怎么货比三家，挑出真正合适的模型。</strong>"</p>
+<hr />
+<h3>没有"万能模型"这回事</h3>
+<p>"我先泼盆冷水，"小雨说，"机器学习圈子里有个说法，叫<strong>"没有免费的午餐"</strong>（No Free Lunch）。说白了就是——<strong>不存在一个模型，能在所有问题上都表现最好。</strong>"</p>
+<p>"这怎么可能？"老陈不信，"总有个最厉害的吧？"</p>
+<p>"打个比方，"小雨说，"你说，冲印照片的时候，是用放大机好，还是用暗房显影盆好？"</p>
+<p>"这不能一概而论啊，"老陈说，"放大照片当然得用放大机，冲洗底片就得用显影盆，工具得看用在什么活儿上。"</p>
+<p>"这就对了！"小雨说，"模型也是同理——决策树在有些问题上表现很好，换一批数据可能线性回归反而更合适。没有哪个模型是'万能钥匙'，所以咱们才需要<strong>多试几个模型，实际比一比，看哪个在你手头这个具体问题上表现最好</strong>。"</p>
+<hr />
+<h3>"超参数"是什么？</h3>
+<p>小雨接着说："另外还有件事——同一个模型，其实也不是'一成不变'的，里头还有一些咱们可以自己调整的'旋钮'，这些旋钮，叫<strong>超参数</strong>。"</p>
+<p>"这词听着挺唬人。"老陈说。</p>
+<p>"其实一点都不神秘，"小雨说，"还记得第五章讲的决策树吗？咱们说电脑会自动去找'该怎么切'。但有件事是电脑自己决定不了、得咱们<strong>提前</strong>告诉它的——比如：<strong>这棵树最多能长多深</strong>？如果不设限制，树可能长得特别深、特别细，把训练数据的细枝末节都记下来——还记得这是什么问题吗？"</p>
+<p>"过拟合！"老陈脱口而出。</p>
+<p>"完全正确！所以咱们可以提前设定一个'树的最大深度'，防止它长得太深。这个'最大深度'，就是一个典型的<strong>超参数</strong>。"</p>
+<p>小雨补充道："再比如随机森林里的<code>ntree = 500</code>，这个'种多少棵树'，也是一个超参数。这些超参数，都不是电脑从数据里'学'出来的，而是咱们<strong>在训练之前，就得先定好</strong>的设置。"</p>
+<p>老陈想了个类比："这是不是有点像我教徒弟冲照片时，提前定好的规矩——比如'显影最多泡3分钟，泡久了照片就废了'？这个'3分钟'的上限，是我根据经验提前定的规矩，不是徒弟自己悟出来的。"</p>
+<p>"舅舅这个比方相当精准！超参数就是这种'咱们提前定好的规矩'，模型自己不会去调整这些规矩，只会在这些规矩的范围内，去学习具体的判断细节。"</p>
+<hr />
+<h3>怎么找到最合适的"配方"？</h3>
+<p>"那这些超参数，比如'树的深度''森林里种几棵树'，该定成多少合适呢？"老陈问。</p>
+<p>"最直接的办法，"小雨说，"就是<strong>多试几组不同的组合，每组都用交叉验证（还记得第七章吗）来评估一下，看哪组组合的分数最高，就选哪组。</strong>"</p>
+<p>她打了个比方："这就跟你调显影药水的配方一样——显影剂、定影剂的比例，泡的时间，都会影响冲出来的照片质量。你不会瞎蒙一个配方就上手，而是会试个几组不同的比例、时间，冲几张试片，比较一下哪组效果最好，才敲定正式的配方。"</p>
+<p>"这个'多试几组、挑最好的'的过程，"小雨继续说，"在机器学习里有个专门的名字，叫<strong>网格搜索</strong>（Grid Search）——意思是把要试的几个超参数的候选值，排列组合成一张'网格'，一组一组地试过去，每组都算一次交叉验证分数，最后挑分数最高的那组。"</p>
+<hr />
+<h3>用代码"货比三家"</h3>
+<p>小雨敲下代码，边敲边讲解：</p>
+<div class="console"><div class="console-bar"><span class="console-dot"></span><span class="console-dot"></span><span class="console-dot"></span><span class="console-label">R</span></div><div class="console"><div class="console-bar"><span class="console-dot"></span><span class="console-dot"></span><span class="console-dot"></span><span class="console-label">代码</span></div><pre><code>library(caret)
+
+# 设置5折交叉验证，用来给每个模型/参数组合打分
+train_control &lt;- trainControl(method = &quot;cv&quot;, number = 5)
+
+# 第一家：随机森林，同时尝试几种不同的参数设置
+rf_model &lt;- train(as.factor(disease) ~ age + weight + blood_pressure,
+                   data = train_data,
+                   method = &quot;rf&quot;,
+                   trControl = train_control,
+                   tuneLength = 5)   # 自动尝试5种不同的参数组合
+
+# 第二家：逻辑回归（一种专门用来做分类的简单模型）
+glm_model &lt;- train(as.factor(disease) ~ age + weight + blood_pressure,
+                    data = train_data,
+                    method = &quot;glm&quot;,
+                    family = &quot;binomial&quot;,
+                    trControl = train_control)
+
+# 把两家的交叉验证结果摆在一起对比
+results &lt;- resamples(list(RandomForest = rf_model, LogisticRegression = glm_model))
+summary(results)
+</code></pre></div></div>
+<p>"<code>tuneLength = 5</code>，"小雨解释道，"就是告诉电脑：自动帮我尝试5种不同的超参数组合，每种都算一遍交叉验证分数，最后告诉我哪组最好。"</p>
+<p>"<code>resamples(...)</code>加上<code>summary(...)</code>，"她继续说，"就是把随机森林和逻辑回归这两个'选手'的交叉验证成绩，摆在同一张表里，方便咱们直接对比，谁的分数更高、更稳定。"</p>
+<p>老陈看着屏幕上跳出来的对比结果："这不就跟我评比几个徒弟的手艺一样吗——都让他们冲同一批底片，比比看谁冲得又快又好，数据摆出来，一目了然。"</p>
+<p>"舅舅，你这总结，一针见血。"</p>
+<hr />
+<h3>别忘了：最后还得看"期末考"成绩</h3>
+<p>小雨特意提醒道："这里要再强调一下第七章讲过的道理——刚才这些'货比三家'的比较，用的都是交叉验证的分数，相当于'模拟考'成绩，帮咱们<strong>从几个候选模型里，挑出看起来最靠谱的那一个</strong>。"</p>
+<p>"等真正选定了模型、定好了超参数，"她继续说，"最后一步，还是得老老实实拿出那份从头到尾都没碰过的<strong>测试集</strong>（真正的'期末考'），最后考一次，才是这个模型最终、最可信的成绩单。这一步不能省，也不能提前偷看，不然就像'漏题'了。"</p>
+<p>老陈点头："我记着呢——模拟考多考几次，帮着挑人；期末考只考一次，一翻两瞪眼，见真章。"</p>
+<hr />
+<h3>今天的收获</h3>
+<p>小雨总结道："今天咱们解决了老陈最初的问题——<strong>该选哪个模型？答案是：没有放之四海皆准的最佳模型，得结合你手头具体的数据和问题，多试几个、多调调参数，用交叉验证客观地比一比，最后用测试集验一次真本事。</strong>"</p>
+<p>老陈感慨："机器学习这活儿，说到底跟咱手艺人做事的道理是相通的——没有一招鲜吃遍天的绝活，得根据手头的活儿，挑合适的工具，反复试、反复调，才能做出真正过硬的东西。"</p>
+<hr />
+<p><strong>下一章预告：</strong> 老陈已经把机器学习的整套本事都学得差不多了——看数据、处理特征、选模型、调参数、评估效果。下一章，小雨要带他从头到尾走一遍完整的实战流程，用一份真实数据集，正式给老陈来一场"结业大考"。</p>
+<hr />
+<h3>本章重点回顾（给学生看的小抄）</h3>
+<div class="card-wrap"><div class="card-tab">小抄卡片</div><table>
+<thead>
+<tr>
+<th>名词</th>
+<th>大白话解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>没有免费的午餐</td>
+<td>不存在一个模型能在所有问题上都表现最好，得因地制宜</td>
+</tr>
+<tr>
+<td>超参数</td>
+<td>训练前需要人工预先设定的"规矩"（如树的深度、森林里树的数量），不是电脑自己学出来的</td>
+</tr>
+<tr>
+<td>网格搜索</td>
+<td>把候选的超参数组合都试一遍，用交叉验证挑出分数最高的组合</td>
+</tr>
+<tr>
+<td>模型比较</td>
+<td>用交叉验证分数，客观比较不同模型/参数组合的表现，而不是凭感觉挑</td>
+</tr>
+</tbody>
+</table></div>
+        </div>
+      </div>
+    </section>
+    
+
+    <section class="frame-section" id="ch11" data-frame="11">
+      <div class="print">
+        <div class="print-header">
+          <span class="exposure-num">11 / 12</span>
+          <h2>第十一章：老陈的结业大考</h2>
+        </div>
+        <div class="print-body">
+          <p>这天，小雨郑重其事地把电脑摆在柜台上："舅舅，今天不讲新东西了。咱们把前十章学的本事，从头到尾串一遍，你自己动手，走一次完整的机器学习流程。"</p>
+<p>老陈搓了搓手，既紧张又期待："成，你说，我这就试试。"</p>
+<p>"还是用你已经熟悉的这份病人数据，"小雨说，"记录了病人的年龄、体重、血压、是否吸烟、所在地区，还有最后有没有得病。这一次，咱们不再是我讲一段你听一段，而是你自己走一遍全流程，我在旁边看着，你哪儿卡住了，我再提醒。"</p>
+<p>老陈深吸一口气："好，那我开始了。"</p>
+<hr />
+<h3>第一步：提出问题</h3>
+<p>"第一步该干嘛？"小雨问。</p>
+<p>老陈想了想："先得明确——我到底要预测什么？这次是要预测'有没有得病'，这是个类别，属于……<strong>分类问题</strong>！"</p>
+<p>"好的开始。"小雨点头。</p>
+<hr />
+<h3>第二步：先"看"数据（EDA）</h3>
+<p>"接下来，"老陈说，"不能急着建模，得先把数据看明白。"</p>
+<div class="console"><div class="console-bar"><span class="console-dot"></span><span class="console-dot"></span><span class="console-dot"></span><span class="console-label">R</span></div><div class="console"><div class="console-bar"><span class="console-dot"></span><span class="console-dot"></span><span class="console-dot"></span><span class="console-label">代码</span></div><pre><code>patients &lt;- read.csv(&quot;patients.csv&quot;)
+head(patients)
+summary(patients)
+</code></pre></div></div>
+<p>老陈一边敲，一边念叨："先看看每一列都是什么。数值型的列，比如年龄、体重、血压，我得画个<strong>直方图</strong>，看看分布正不正常，有没有'300岁'这种离谱的<strong>异常值</strong>。"</p>
+<div class="console"><div class="console-bar"><span class="console-dot"></span><span class="console-dot"></span><span class="console-dot"></span><span class="console-label">R</span></div><div class="console"><div class="console-bar"><span class="console-dot"></span><span class="console-dot"></span><span class="console-dot"></span><span class="console-label">代码</span></div><pre><code>hist(patients$age)
+hist(patients$blood_pressure)
+</code></pre></div></div>
+<p>"类别型的列，比如'是否吸烟''所在地区'，我得画个<strong>条形图</strong>，看看各个类别占比怎么样，顺便瞧瞧'有没有得病'这一列，是不是有<strong>类别不平衡</strong>的问题。"</p>
+<div class="console"><div class="console-bar"><span class="console-dot"></span><span class="console-dot"></span><span class="console-dot"></span><span class="console-label">R</span></div><div class="console"><div class="console-bar"><span class="console-dot"></span><span class="console-dot"></span><span class="console-dot"></span><span class="console-label">代码</span></div><pre><code>barplot(table(patients$smoker))
+barplot(table(patients$disease))
+</code></pre></div></div>
+<p>小雨在一旁看着，插了句嘴："舅舅，你看这张'是否得病'的条形图，得病的人明显比没得病的人少很多，你还记得这意味着什么吗？"</p>
+<p>老陈立刻反应过来："这就是第三章讲的类别不平衡！后面评估模型的时候，我不能光看'准确率'，得多留意<strong>召回率</strong>——别让电脑偷懒，见谁都猜'没病'。"</p>
+<p>"记得真牢。"小雨欣慰地笑了。</p>
+<p>老陈接着检查了一遍："缺失值也得看看。"</p>
+<div class="console"><div class="console-bar"><span class="console-dot"></span><span class="console-dot"></span><span class="console-dot"></span><span class="console-label">R</span></div><div class="console"><div class="console-bar"><span class="console-dot"></span><span class="console-dot"></span><span class="console-dot"></span><span class="console-label">代码</span></div><pre><code>sum(is.na(patients))
+patients &lt;- na.omit(patients)  # 先简单处理：把有缺失值的行删掉
+</code></pre></div></div>
+<hr />
+<h3>第三步：特征工程</h3>
+<p>"数据看明白了，"老陈继续说，"该处理特征了。'所在地区'这一列是字，电脑看不懂，得做<strong>独热编码</strong>；'年龄''体重''血压'这几列数值范围差得挺大，得做<strong>标准化</strong>。"</p>
+<div class="console"><div class="console-bar"><span class="console-dot"></span><span class="console-dot"></span><span class="console-dot"></span><span class="console-label">R</span></div><div class="console"><div class="console-bar"><span class="console-dot"></span><span class="console-dot"></span><span class="console-dot"></span><span class="console-label">代码</span></div><pre><code>library(caret)
+
+# 独热编码：把&quot;所在地区&quot;变成模型能懂的数字
+dummy_vars &lt;- dummyVars(~ region, data = patients)
+region_encoded &lt;- predict(dummy_vars, patients)
+
+# 标准化：统一年龄、体重、血压的数值范围
+patients$age_scaled            &lt;- scale(patients$age)
+patients$weight_scaled         &lt;- scale(patients$weight)
+patients$blood_pressure_scaled &lt;- scale(patients$blood_pressure)
+</code></pre></div></div>
+<p>小雨在旁边点头："这一步做得很到位。别忘了，特征处理得好不好，往往比选什么模型更关键——好食材比好厨艺更重要。"</p>
+<hr />
+<h3>第四步：切分训练集和测试集</h3>
+<p>"接下来，"老陈说，"得把一部分数据<strong>藏起来</strong>，留着最后'期末考'用，不能提前偷看。"</p>
+<div class="console"><div class="console-bar"><span class="console-dot"></span><span class="console-dot"></span><span class="console-dot"></span><span class="console-label">R</span></div><div class="console"><div class="console-bar"><span class="console-dot"></span><span class="console-dot"></span><span class="console-dot"></span><span class="console-label">代码</span></div><pre><code>set.seed(123)
+n &lt;- nrow(patients)
+train_index &lt;- sample(1:n, size = 0.8 * n)
+
+train_data &lt;- patients[train_index, ]
+test_data  &lt;- patients[-train_index, ]
+</code></pre></div></div>
+<p>"这80%的训练集，"老陈解释道，"是接下来用来训练模型、调参数的；这20%的测试集，从现在开始，我谁都不许碰它，直到最后一步。"</p>
+<hr />
+<h3>第五步：货比三家——选模型、调参数</h3>
+<p>"现在该'货比三家'了，"老陈说，"用<strong>交叉验证</strong>，把随机森林和逻辑回归这两个模型都试一遍，看看谁的'模拟考'成绩更好。"</p>
+<div class="console"><div class="console-bar"><span class="console-dot"></span><span class="console-dot"></span><span class="console-dot"></span><span class="console-label">R</span></div><div class="console"><div class="console-bar"><span class="console-dot"></span><span class="console-dot"></span><span class="console-dot"></span><span class="console-label">代码</span></div><pre><code>train_control &lt;- trainControl(method = &quot;cv&quot;, number = 5)
+
+rf_model &lt;- train(as.factor(disease) ~ age_scaled + weight_scaled + blood_pressure_scaled,
+                   data = train_data,
+                   method = &quot;rf&quot;,
+                   trControl = train_control,
+                   tuneLength = 5)
+
+glm_model &lt;- train(as.factor(disease) ~ age_scaled + weight_scaled + blood_pressure_scaled,
+                    data = train_data,
+                    method = &quot;glm&quot;,
+                    family = &quot;binomial&quot;,
+                    trControl = train_control)
+
+results &lt;- resamples(list(RandomForest = rf_model, LogisticRegression = glm_model))
+summary(results)
+</code></pre></div></div>
+<p>老陈盯着跳出来的结果，仔细对比了一下两个模型的交叉验证分数："看这个结果，随机森林的成绩更稳定一些，我就选它了。"</p>
+<hr />
+<h3>第六步：期末大考——测试集终评</h3>
+<p>老陈深吸一口气："到了最关键的一步——用那20%从没碰过的测试集，给随机森林模型来次真正的'期末考'。"</p>
+<div class="console"><div class="console-bar"><span class="console-dot"></span><span class="console-dot"></span><span class="console-dot"></span><span class="console-label">R</span></div><div class="console"><div class="console-bar"><span class="console-dot"></span><span class="console-dot"></span><span class="console-dot"></span><span class="console-label">代码</span></div><pre><code>final_predictions &lt;- predict(rf_model, test_data)
+
+# 对比预测结果和真实答案
+table(predicted = final_predictions, actual = test_data$disease)
+</code></pre></div></div>
+<p>看着跳出来的表格，老陈没有只看"猜对了多少个"，而是特意先看了看那个"漏掉真正病人"的数字（假阴性）："这个数字看着还算低，说明模型没怎么偷懒，没有见谁都猜'没病'。"</p>
+<p>"舅舅，"小雨感慨道，"你现在看结果的第一反应，已经是先看'有没有漏掉真正的病人'，而不是被表面的'准确率'唬住——这正是我这十章想教给你的，最核心的判断力。"</p>
+<hr />
+<h3>老陈的"出师感言"</h3>
+<p>老陈靠在椅背上，长舒一口气："这一趟走下来，我算是彻底明白了。机器学习这活儿，说到底就这么几步：<strong>先想清楚要预测什么，看明白数据，把数据整理成电脑能用的样子，藏一部分数据留着最后考试，多试几个模型多调调参数，最后拿藏起来的数据见真章。</strong>每一步环环相扣，少一步都不行。"</p>
+<p>小雨笑着点头："舅舅，你现在这套思路，已经比很多刚入门的新手扎实多了。不过我得提醒你——"</p>
+<p>她话锋一转，神情变得严肃了些："咱们这十一章讲的，都是机器学习<strong>能做什么、怎么做</strong>。但还有一件同样重要的事，是——机器学习<strong>不能做什么、什么时候不该用</strong>。这个话题，咱们下一章聊。"</p>
+<hr />
+<p><strong>下一章预告：</strong> 老陈的手艺学得差不多了，可小雨要给他泼一盆冷水——机器学习不是万能的，甚至可能带来意想不到的麻烦。下一章，聊聊机器学习的局限性，以及用这门手艺时，该扛起的责任。</p>
+<hr />
+<h3>本章重点回顾（给学生看的小抄：全流程速查表）</h3>
+<div class="card-wrap"><div class="card-tab">小抄卡片</div><table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>要做的事</th>
+<th>对应哪一章</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. 提出问题</td>
+<td>明确是分类问题还是回归问题</td>
+<td>第八章</td>
+</tr>
+<tr>
+<td>2. 探索数据（EDA）</td>
+<td>看分布、查异常值/缺失值、看类别是否平衡</td>
+<td>第三、四章</td>
+</tr>
+<tr>
+<td>3. 特征工程</td>
+<td>独热编码、标准化，把数据变成模型能用的样子</td>
+<td>第九章</td>
+</tr>
+<tr>
+<td>4. 切分数据</td>
+<td>分出训练集和测试集，测试集先藏起来</td>
+<td>第二章</td>
+</tr>
+<tr>
+<td>5. 选模型、调参</td>
+<td>用交叉验证货比三家，挑出最合适的模型和参数</td>
+<td>第七、十章</td>
+</tr>
+<tr>
+<td>6. 测试集终评</td>
+<td>用从未碰过的测试集，给出最终、最可信的评估</td>
+<td>第二、三章</td>
+</tr>
+</tbody>
+</table></div>
+        </div>
+      </div>
+    </section>
+    
+
+    <section class="frame-section" id="ch12" data-frame="12">
+      <div class="print">
+        <div class="print-header">
+          <span class="exposure-num">12 / 12</span>
+          <h2>第十二章：机器学习不是魔法</h2>
+        </div>
+        <div class="print-body">
+          <p>老陈这些天信心满满，逢人就念叨自己新学的手艺。这天他兴致勃勃地跟小雨说："我琢磨着，咱这照相馆以后招徒弟，是不是也能用机器学习来'预测'一下，谁将来能成为好徒弟？"</p>
+<p>小雨愣了一下，没有立刻答话。</p>
+<p>"咋了？"老陈问，"这不也是个'预测'问题吗？用应聘者的年龄、学历、以前的工作经历这些信息，预测他将来干得好不好，这不跟预测房价、预测得病一个道理？"</p>
+<p>"道理是一个道理，"小雨缓缓说道，"但今天我想跟你聊聊，机器学习<strong>不是万能的</strong>，而且用不好，可能会捅出大娄子。这也是这门课最后，也是最重要的一课。"</p>
+<hr />
+<h3>电脑学的，是数据里的"规律"——包括偏见</h3>
+<p>小雨问："舅舅，你还记得咱们第一章讲的，电脑是怎么'学'的吗？"</p>
+<p>"记得，看大量带答案的例子，自己总结规律。"</p>
+<p>"对。这里有个特别容易被忽略的问题——<strong>电脑不会分辨这些'规律'是不是合理、公正的，它只会老老实实地把数据里存在的规律，原样学下来。</strong>"她顿了顿，"如果拿来训练的历史数据里，本来就存在某种不公平的现象——比如说，过去因为种种历史原因，某个群体被录用的机会系统性地偏少——电脑看到这些数据，会以为这就是'规律'，然后原封不动地把这种不公平<strong>继续延续下去</strong>，甚至因为披上了'电脑很客观、很科学'的外衣，让人更难发现问题、更难去纠正它。"</p>
+<p>老陈皱起眉头，若有所思："这么说，电脑不是有意要偏心，它是被数据'教坏'的？"</p>
+<p>"可以这么理解，"小雨说，"这也是为什么，招聘、录取、贷款审批这些直接影响人命运的场景，用机器学习格外要慎重——<strong>得先想清楚，训练数据里是不是本身就带着历史遗留的不公平，不能把'电脑算出来的'就当成'一定是客观公正的'。</strong>"</p>
+<p>老陈摸着下巴，沉默了一会儿："那你的意思是，招徒弟这事儿，不适合用机器学习？"</p>
+<p>"至少不能简单地照搬房价预测那一套，"小雨说，"招徒弟这事，'好徒弟'本身就很难量化——手艺好坏、悟性高低、人品怎么样，这些很难简简单单变成表格里的几个数字。而且样本量太小了，你这些年统统加起来才带过几个徒弟？这点数据，电脑根本'学'不出什么靠谱的规律，硬要用，只会是'一本正经地瞎猜'。"</p>
+<hr />
+<h3>"黑箱"模型：知道结果，却说不清为什么</h3>
+<p>小雨接着抛出第二个问题："还有件事我得提醒你——有些模型（尤其是像随机森林这种由几百棵树投票组成的模型），预测结果往往还算准，但你要问它'为什么这么判断'，它却很难给出一个清清楚楚、人能听懂的理由。这种模型，业内管它叫<strong>黑箱模型</strong>——意思是，你能看到它'输入什么、输出什么'，但中间的判断过程，像个黑漆漆的箱子，看不透。"</p>
+<p>"这有什么关系？"老陈问，"只要猜得准，为啥非得知道理由？"</p>
+<p>"在有些场合，这关系可大了，"小雨说，"比如医生要不要根据模型的判断，建议病人做手术——如果模型只会说'我算出来有80%的可能性有病'，却说不出'是因为哪些指标异常'，医生该怎么跟病人解释、该怎么进一步验证？再比如银行拒绝了你的贷款申请，如果只回答一句'电脑算出来风险高'，却说不清具体原因，你会服气吗？"</p>
+<p>老陈想了想："这么说，越是<strong>人命关天</strong>、或者<strong>关系到别人切身利益</strong>的判断，就越得用那种能'说清楚理由'的模型，哪怕它可能没那么'聪明'？"</p>
+<p>"舅舅，你这个总结相当到位，"小雨说，"这里头其实存在一个常见的权衡——很多时候，越'聪明'、预测越准的模型，往往越像个'黑箱'，说不清道理；而越容易'说清楚道理'的模型（比如决策树，因为咱们能画出它一步步问了什么问题），有时候预测准头会打点折扣。具体该怎么取舍，得看场合——是'准不准'更重要，还是'说不说得清'更重要。"</p>
+<hr />
+<h3>什么时候，机器学习根本不该用？</h3>
+<p>"那是不是所有'预测'的活儿，都能用机器学习？"老陈问。</p>
+<p>"当然不是，"小雨说，"我给你举几种，机器学习不适合、甚至不该用的情况："</p>
+<ol>
+<li><strong>数据本身少得可怜，或者根本没有靠谱的历史数据可学</strong>——就像刚才说的，招徒弟这种事，样本太少，硬训练出来的模型只是"看起来科学"，其实毫无根据。</li>
+<li><strong>数据本身就带着不公平、有偏见的历史痕迹，而这个偏见恰恰是咱们最想纠正、而不是延续的</strong>——比如某些历史遗留的社会不公平现象。</li>
+<li><strong>判断的后果非常严重，出错的代价没法承受，而且咱们又说不清模型判断的理由</strong>——比如完全依赖一个说不清理由的黑箱模型，去做生死攸关的医疗决策。</li>
+<li><strong>问题本身，其实用简单的规则、常识就能讲清楚，根本用不着"训练模型"这么复杂的手段</strong>——杀鸡焉用牛刀。</li>
+</ol>
+<p>老陈听完，感慨道："听你这么一说，我算是明白了——这机器学习，是个厉害的工具，但跟咱这暗房里的化学药水一样，用对了地方是好帮手，用错了地方，能把好好的照片、好好的事儿都给毁了。"</p>
+<hr />
+<h3>老陈的"出师"</h3>
+<p>小雨合上电脑，笑着说："舅舅，这十二章讲下来，从'什么是机器学习'，到亲手训练模型、评估效果、处理特征、货比三家选模型，再到今天这一课——什么时候该用、什么时候不该用、该扛起什么责任——你现在，也算是正式'出师'了。"</p>
+<p>老陈望着柜台上那台笔记本电脑，又看了看墙上挂着的老照相机，感慨万千："三十年前，我师傅教我冲照片，最后一课教的不是什么高深的技巧，而是告诉我——<strong>冲照片这门手艺，是拿来记录真实、留住美好的，不是拿来糊弄人的。</strong>今天你教我机器学习，最后一课，讲的也是同样的道理——工具是工具，怎么用、用在哪儿，还得靠人自己拿主意，担责任。"</p>
+<p>小雨笑了："舅舅，这才是真正的'出师'——不是学会了多少个模型、记住了多少行代码，而是懂得了<strong>什么时候该用这门手艺，什么时候该收着点，心里有杆秤。</strong>"</p>
+<p>老陈望着窗外渐渐亮起来的城市灯火，端起手边那杯早已凉透的茶，一饮而尽："成，那咱明天，就用这套本事，看看能不能帮那个Zanzibar的项目，多做点实实在在的事。"</p>
+<p><strong>（全书完）</strong></p>
+<hr />
+<h3>本章重点回顾（给学生看的小抄）</h3>
+<div class="card-wrap"><div class="card-tab">小抄卡片</div><table>
+<thead>
+<tr>
+<th>名词</th>
+<th>大白话解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>数据偏见</td>
+<td>训练数据里本身存在的不公平现象，电脑会原样学下来、甚至延续下去</td>
+</tr>
+<tr>
+<td>黑箱模型</td>
+<td>预测可能很准，但说不清"为什么这么判断"的模型（如随机森林）</td>
+</tr>
+<tr>
+<td>可解释性</td>
+<td>模型能不能说清楚自己判断的理由，在医疗、金融等场景中格外重要</td>
+</tr>
+<tr>
+<td>什么时候不该用机器学习</td>
+<td>数据太少、数据带明显偏见、后果严重且说不清理由、或问题本身用常识就能解决</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2>全书回顾：十二章都讲了什么</h2>
+<div class="card-wrap"><div class="card-tab">小抄卡片</div><table>
+<thead>
+<tr>
+<th>章节</th>
+<th>主题</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第一章</td>
+<td>什么是机器学习、训练、泛化能力</td>
+</tr>
+<tr>
+<td>第二章</td>
+<td>训练集/测试集、过拟合、欠拟合</td>
+</tr>
+<tr>
+<td>第三章</td>
+<td>类别不平衡、准确率陷阱、召回率/精确率</td>
+</tr>
+<tr>
+<td>第四章</td>
+<td>探索性数据分析（EDA）</td>
+</tr>
+<tr>
+<td>第五章</td>
+<td>决策树、随机森林（概念）</td>
+</tr>
+<tr>
+<td>第六章</td>
+<td>R语言实操入门</td>
+</tr>
+<tr>
+<td>第七章</td>
+<td>交叉验证、验证集与测试集的区别</td>
+</tr>
+<tr>
+<td>第八章</td>
+<td>分类问题 vs 回归问题、MAE/RMSE</td>
+</tr>
+<tr>
+<td>第九章</td>
+<td>特征工程：独热编码、标准化</td>
+</tr>
+<tr>
+<td>第十章</td>
+<td>模型选择、超参数调优</td>
+</tr>
+<tr>
+<td>第十一章</td>
+<td>完整实战流程</td>
+</tr>
+<tr>
+<td>第十二章</td>
+<td>机器学习的局限性与责任</td>
+</tr>
+</tbody>
+</table></div>
+        </div>
+      </div>
+    </section>
+    
+  </main>
+</div>
+
+<footer class="colophon">
+  机器学习小说教程 · 全十二章完 ·
+  用照相馆的暗房手艺，讲透训练集、过拟合、交叉验证与模型选择
+</footer>
+
+<script>
+(function() {
+  var root = document.documentElement;
+  var toggle = document.getElementById('themeToggle');
+  var label = document.getElementById('themeLabel');
+  var isLight = true;
+  root.setAttribute('data-theme', 'light');
+  label.textContent = '日光模式';
+
+  toggle.addEventListener('click', function() {
+    isLight = !isLight;
+    root.setAttribute('data-theme', isLight ? 'light' : 'dark');
+    label.textContent = isLight ? '日光模式' : '暗房模式';
+  });
+
+  // scroll reveal ("developing")
+  var prints = document.querySelectorAll('.print');
+  var io = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('developed');
+        io.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
+  prints.forEach(function(p) { io.observe(p); });
+
+  // scrollspy for filmstrip nav
+  var sections = document.querySelectorAll('.frame-section');
+  var buttons = document.querySelectorAll('.frame-btn');
+  var btnMap = {};
+  buttons.forEach(function(b) {
+    btnMap[b.getAttribute('data-target')] = b;
+    b.addEventListener('click', function() {
+      var target = document.getElementById(b.getAttribute('data-target'));
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+
+  var spy = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      var id = entry.target.id;
+      var btn = btnMap[id];
+      if (!btn) return;
+      if (entry.isIntersecting) {
+        buttons.forEach(function(b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+      }
+    });
+  }, { threshold: 0, rootMargin: '-45% 0px -45% 0px' });
+  sections.forEach(function(s) { spy.observe(s); });
+})();
+</script>
+
+</body>
+</html>
